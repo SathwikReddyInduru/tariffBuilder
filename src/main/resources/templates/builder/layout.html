@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(titleFrag, stageFrag, activeStep)">
+
+<head>
+    <title th:replace="${titleFrag}">Tariff Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/builder.css}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <img src="https://www.xius.com/wp-content/themes/xius/assets/img/logo/logo.png" alt="Xius Logo"
+            style="height:50px; vertical-align:middle;">
+        <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    </nav>
+
+    <div class="app-container">
+
+        <!-- STEP RAIL -->
+        <nav class="step-rail" id="stepRail">
+            <a href="/builder/step1" class="step-node" th:classappend="${activeStep == 1} ? ' active'">
+                <b>STEP 1</b><span>PKG TYPE</span>
+            </a>
+            <a href="/builder/step2" class="step-node" onclick="return checkStepAccess(2)"
+                th:classappend="${activeStep == 2} ? ' active'">
+                <b>STEP 2</b><span>SERVICE</span>
+            </a>
+            <a href="/builder/step3" class="step-node" th:classappend="${activeStep == 3} ? ' active'">
+                <b>STEP 3</b><span>DEFAULT</span>
+            </a>
+            <a href="/builder/step4" class="step-node" th:classappend="${activeStep == 4} ? ' active'">
+                <b>STEP 4</b><span>ADDITIONAL</span>
+            </a>
+            <a href="/builder/step5" class="step-node" th:classappend="${activeStep == 5} ? ' active'">
+                <b>STEP 5</b><span>PRICING</span>
+            </a>
+        </nav>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-tabs">
+                <div class="tab active">LIBRARY</div>
+                <div class="tab">DRAFTS</div>
+            </div>
+            <div class="sidebar-content" id="comp-list"></div>
+        </aside>
+
+        <main class="workspace">
+
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-inner" style="display:flex; align-items:center;">
+                    <div class="logo">
+                        Builder | <span th:text="${username != null ? username : 'user'}">user</span>
+                    </div>
+
+                    <div class="module-nav">
+                        <div class="mod-btn active" id="m-pkg" onclick="switchModule('pkg')">PACKAGE BUILDER</div>
+                        <div class="mod-btn" id="m-reload" onclick="switchModule('reload')">ERELOAD</div>
+                    </div>
+                    <input type="text" placeholder="Name..." class="config-name" id="configName">
+                </div>
+            </header>
+
+            <th:block th:replace="${stageFrag}"></th:block>
+
+            <!-- eReload stage -->
+            <section class="stage hidden" id="reloadStage">
+                <div class="dropped-card" style="max-width:600px; margin:0 auto; text-align:left;">
+                    <h2 style="color:var(--primary); margin-bottom:20px;">eReload Configuration</h2>
+                    <div class="card-grid">
+                        <div class="card-field">
+                            <label>Recharge ID</label>
+                            <input type="text" id="rechargeId">
+                        </div>
+                        <div class="card-field">
+                            <label>Recharge Type</label>
+                            <select id="rechargeType">
+                                <option>Single</option>
+                                <option>Range</option>
+                            </select>
+                        </div>
+                        <div class="card-field">
+                            <label>MRP / Cost (RM)</label>
+                            <input type="number" id="mrp">
+                        </div>
+                        <div class="card-field">
+                            <label>AirTime Value</label>
+                            <input type="number" id="airTime">
+                        </div>
+                        <div class="card-field">
+                            <label>Validity (Days)</label>
+                            <input type="number" id="validityDays">
+                        </div>
+                        <div class="card-field">
+                            <label>Grace Period 1 (Days)</label>
+                            <input type="number" id="gracePeriod1">
+                        </div>
+                        <div class="card-field">
+                            <label>Grace Period 2 (Days)</label>
+                            <input type="number" id="gracePeriod2">
+                        </div>
+                    </div>
+                    <button class="save-btn" style="width:100%; margin-top:30px;" onclick="saveReload()">
+                        Save eReload Configuration
+                    </button>
+                </div>
+            </section>
+
+            <!-- FOOTER -->
+            <div class="config-panel" id="footerActions">
+                <button class="btn-secondary" onclick="viewTree()">Hierarchy</button>
+                <button class="btn-primary" onclick="saveConfiguration()">SAVE CONFIG</button>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="treeModal" onclick="closeTree()">
+        <div class="tree-card" onclick="event.stopPropagation()">
+            <h2>Configuration Summary</h2>
+            <div class="tree-body" id="treeBody">
+                <div class="tree-header">
+                    <h3 id="treeName">Unnamed Package</h3>
+                    <span id="treeMeta">| NORMAL | Retail</span>
+                </div>
+                <div class="tree-row" id="treeMain">📦 Main Service Plan: None</div>
+                <div class="tree-row" id="treeDatp">➕ DATP Components: 0 items</div>
+                <div class="tree-row" id="treeAatp">🛒 AATP Components: 0 items</div>
+                <hr class="tree-divider">
+                <div class="tree-charge" id="treeCharge"><b>Charge: RM 0.00</b> | <b>Ends: Permanent</b></div>
+            </div>
+            <button class="tree-close-btn" onclick="closeTree()">Close Preview</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 XIUS</p>
+    </footer>
+
+    <script th:src="@{/js/layout.js}"></script>
+
+</body>
+
+</html>
