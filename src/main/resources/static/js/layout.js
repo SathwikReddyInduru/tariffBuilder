@@ -22,12 +22,27 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Step access guard ──
-function checkStepAccess(step) {
-    const type = sessionStorage.getItem('pkgType');
-    if (step > 1 && !type) {
+function checkStepAccess(targetStep) {
+
+    const pkgType = sessionStorage.getItem('pkgType');
+
+    const state = JSON.parse(sessionStorage.getItem('builderState') || '{}');
+
+    // ---------- STEP 1 CHECK ----------
+    if (!pkgType) {
         alert("Please select PREPAID or POSTPAID in Step 1");
         return false;
     }
+    //TODO uncomment this after adding step2 successfully
+    // ---------- STEP 2 CHECK ----------
+    // const hasStep2Data = state.s2 && state.s2.length > 0;
+
+    // // If trying to go beyond step2 without step2 data
+    // if (targetStep > 2 && !hasStep2Data) {
+    //     alert("Please complete Step 2 before proceeding");
+    //     return false;
+    // }
+
     return true;
 }
 
@@ -67,6 +82,20 @@ async function saveReload() {
         if (res.ok) alert('eReload Configuration Saved.');
     } catch (e) { alert('Backend error.'); }
 }
+
+//Logout
+function toggleUserMenu() {
+    const dropdown = document.getElementById("userDropdown");
+    dropdown.classList.toggle("active");
+}
+
+// close when clicking outside
+document.addEventListener("click", function (e) {
+    const menu = document.querySelector(".user-menu");
+    if (!menu.contains(e.target)) {
+        document.getElementById("userDropdown").classList.remove("active");
+    }
+});
 
 // ── Save package config ──
 async function saveConfiguration() {

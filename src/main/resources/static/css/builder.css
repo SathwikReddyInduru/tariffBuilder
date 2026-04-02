@@ -107,6 +107,64 @@ body {
     align-items: center;
 }
 
+/* Logout */
+.user-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.user-icon {
+    cursor: pointer;
+    font-size: 22px;
+    padding: 8px 12px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.user-icon:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: #ffffff; /* white background */
+    border-radius: 10px;
+    padding: 10px;
+    width: 180px;
+    display: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    border: 1px solid #e5e7eb; /* light border */
+    z-index: 1000;
+}
+
+.user-dropdown.active {
+    display: block;
+}
+
+.user-name {
+    font-weight: 600;
+    padding: 8px;
+    color: #111827; /* dark text */
+    border-bottom: 1px solid #e5e7eb; /* light divider */
+    margin-bottom: 8px;
+}
+
+.logout-option {
+    padding: 8px;
+    cursor: pointer;
+    color: #dc2626; /* red but visible */
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logout-option:hover {
+    background: #f3f4f6; /* light hover */
+}
+
 /* ===== HEADER ===== */
 .header {
     width: 100%;

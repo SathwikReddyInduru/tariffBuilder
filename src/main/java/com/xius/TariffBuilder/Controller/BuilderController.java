@@ -193,6 +193,12 @@ public class BuilderController {
 		return "builder/step3";
 	}
 
+	@GetMapping("/builder/step3/filter")
+    @ResponseBody
+    public List<ServicePlanPackMap> getAtpPlans(@RequestParam String types) {
+    	return service.getAtpPlans(types);
+    }
+
 	@GetMapping("/builder/step4")
 	public String step4(HttpSession session, Model model) {
 		setCommonData(session, model);

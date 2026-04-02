@@ -17,4 +17,8 @@ public class ServicePlanService {
 	public List<ServicePlanPackMap> getPlans(String types) {
 		return repository.getPlansByExactType(types);
 	}
+
+	public List<ServicePlanPackMap> getAtpPlans(String types) {
+		return repository.getAtpPlansByExactType(types);
+	 }
 }
