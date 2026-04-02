@@ -1,10 +1,10 @@
-package com.xius.TarrifBuilder.UserRepository;
+package com.xius.TariffBuilder.UserRepository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.xius.TarrifBuilder.Entity.Network;
+import com.xius.TariffBuilder.Entity.Network;
 
 public interface NetworkRepository extends JpaRepository<Network, Long> {
 

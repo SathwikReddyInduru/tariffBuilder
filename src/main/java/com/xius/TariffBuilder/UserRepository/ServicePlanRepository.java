@@ -1,9 +1,10 @@
-package com.xius.TarrifBuilder.UserRepository;
+package com.xius.TariffBuilder.UserRepository;
 
-import com.xius.TarrifBuilder.Entity.ServicePlanPackMap;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.xius.TariffBuilder.Entity.ServicePlanPackMap;
 
 import java.util.List;
 

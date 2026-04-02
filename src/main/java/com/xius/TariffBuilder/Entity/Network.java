@@ -1,4 +1,4 @@
-package com.xius.TarrifBuilder.Entity;
+package com.xius.TariffBuilder.Entity;
 
 
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.xius.TarrifBuilder.Dao;
+package com.xius.TariffBuilder.Dao;
 
 import lombok.Data;
 

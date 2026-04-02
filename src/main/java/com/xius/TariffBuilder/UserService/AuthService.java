@@ -1,4 +1,4 @@
-package com.xius.TarrifBuilder.UserService;
+package com.xius.TariffBuilder.UserService;
 
 import java.security.MessageDigest;
 import java.util.Optional;
@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.xius.TarrifBuilder.UserRepository.UserRepository;
-import com.xius.TarrifBuilder.Entity.User; // make sure this import matches your entity
+import com.xius.TariffBuilder.Entity.User;
+import com.xius.TariffBuilder.UserRepository.UserRepository;
 
 @Service
 public class AuthService {
@@ -15,15 +15,15 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    
     public boolean loginUser(String username, String password, String networkName) {
 
         String encryptedPassword = encryptPassword(password);
 
-		return userRepository.findByLoginIdAndPasswordAndNetworkDisplay(username, encryptedPassword, networkName).isPresent();
-	}
- 
-    //  CHECK: Network exists
+        return userRepository.findByLoginIdAndPasswordAndNetworkDisplay(username, encryptedPassword, networkName)
+                .isPresent();
+    }
+
+    // CHECK: Network exists
     public boolean isValidNetwork(String networkName) {
         return userRepository.existsByNetwork_NetworkDisplay(networkName);
     }
@@ -38,8 +38,7 @@ public class AuthService {
 
         String encryptedPassword = encryptPassword(password);
 
-        Optional<User> userOpt =
-        		userRepository.findByLoginIdAndNetwork_NetworkDisplay(username, networkName);
+        Optional<User> userOpt = userRepository.findByLoginIdAndNetwork_NetworkDisplay(username, networkName);
 
         if (userOpt.isPresent()) {
             return userOpt.get().getPassword().equals(encryptedPassword);
@@ -48,7 +47,7 @@ public class AuthService {
         return false;
     }
 
-    //  PASSWORD ENCRYPTION (SHA-1)
+    // PASSWORD ENCRYPTION (SHA-1)
     public String encryptPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -64,13 +63,14 @@ public class AuthService {
             throw new RuntimeException(e);
         }
     }
-//added 
+
+    // added
     public User getUser(String username, String password, String network) {
 
         String encryptedPassword = encryptPassword(password);
 
         return userRepository
-            .findByLoginIdAndPasswordAndNetworkDisplay(username, encryptedPassword, network)
-            .orElse(null);
+                .findByLoginIdAndPasswordAndNetworkDisplay(username, encryptedPassword, network)
+                .orElse(null);
     }
 }

@@ -1,4 +1,4 @@
-package com.xius.TarrifBuilder.Dao;
+package com.xius.TariffBuilder.Dao;
 
 import lombok.Data;
 
@@ -9,4 +9,12 @@ public class LoginForm {
     private String networkName; // Only for USER
     private String username;
     private String password;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }

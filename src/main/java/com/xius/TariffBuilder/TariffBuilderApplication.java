@@ -1,13 +1,13 @@
-package com.xius.TarrifBuilder;
+package com.xius.TariffBuilder;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TarrifBuilderApplication {
+public class TariffBuilderApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TarrifBuilderApplication.class, args);
+		SpringApplication.run(TariffBuilderApplication.class, args);
 	}
 
 }
