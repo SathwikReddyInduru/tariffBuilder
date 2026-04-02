@@ -157,7 +157,6 @@ public class BuilderController {
 		return ResponseEntity.ok("success");
 	}
 	// ── Step Pages ──
-	// ── Step Pages ──
 
 	@GetMapping("/builder/step1")
 	public String step1(HttpSession session, Model model) {
