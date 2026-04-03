@@ -195,8 +195,8 @@ public class BuilderController {
 
 	@GetMapping("/builder/step3/filter")
     @ResponseBody
-    public List<ServicePlanPackMap> getAtpPlans(@RequestParam String types) {
-    	return service.getAtpPlans(types);
+    public List<ServicePlanPackMap> getDAtpPlans(@RequestParam String types) {
+    	return service.getDAtpPlans(types);
     }
 
 	@GetMapping("/builder/step4")
@@ -204,6 +204,12 @@ public class BuilderController {
 		setCommonData(session, model);
 		return "builder/step4";
 	}
+	
+	@GetMapping("/builder/step4/filter")
+    @ResponseBody
+    public List<ServicePlanPackMap> getAAtpPlans(@RequestParam String types) {
+    	return service.getAAtpPlans(types);
+    }
 
 	@GetMapping("/builder/step5")
 	public String step5(HttpSession session, Model model) {

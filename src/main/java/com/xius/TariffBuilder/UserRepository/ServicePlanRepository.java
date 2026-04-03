@@ -22,5 +22,12 @@ public interface ServicePlanRepository extends JpaRepository<ServicePlanPackMap,
 	        "AND TARIFF_PLAN_TYPE = 'ATP' " +
 	        "AND SERVICE_TYPES = :types",
 	        nativeQuery = true)
-	List<ServicePlanPackMap> getAtpPlansByExactType(@Param("types") String types);
+	List<ServicePlanPackMap> getDAtpPlansByExactType(@Param("types") String types);
+	
+	@Query(value = "SELECT * FROM CS_SERVICE_PLAN_PACK_MAP " +
+	        "WHERE NETWORK_ID = 16 " +
+	        "AND TARIFF_PLAN_TYPE = 'ATP' " +
+	        "AND SERVICE_TYPES = :types",
+	        nativeQuery = true)
+	List<ServicePlanPackMap> getAAtpPlansByExactType(@Param("types") String types);
 }

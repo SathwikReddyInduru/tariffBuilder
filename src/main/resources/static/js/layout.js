@@ -26,22 +26,24 @@ function checkStepAccess(targetStep) {
 
     const pkgType = sessionStorage.getItem('pkgType');
 
-    const state = JSON.parse(sessionStorage.getItem('builderState') || '{}');
+    const state = JSON.parse(sessionStorage.getItem('state') || '{}');
 
-    // ---------- STEP 1 CHECK ----------
+    // ---------- STEP 1 ----------
     if (!pkgType) {
         alert("Please select PREPAID or POSTPAID in Step 1");
         return false;
     }
-    //TODO uncomment this after adding step2 successfully
-    // ---------- STEP 2 CHECK ----------
-    // const hasStep2Data = state.s2 && state.s2.length > 0;
 
-    // // If trying to go beyond step2 without step2 data
-    // if (targetStep > 2 && !hasStep2Data) {
-    //     alert("Please complete Step 2 before proceeding");
-    //     return false;
-    // }
+    // ---------- STEP 2 ----------
+    const hasStep2Data =
+        state.s2 &&
+        Array.isArray(state.s2) &&
+        state.s2.length > 0;
+
+    if (targetStep > 2 && !hasStep2Data) {
+        alert("Please select Service in Step 2");
+        return false;
+    }
 
     return true;
 }
