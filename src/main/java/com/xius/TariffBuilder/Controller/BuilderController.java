@@ -141,19 +141,23 @@ public class BuilderController {
 	// return "builder/admin"; // must be in templates/builder/
 	// }
 
-	@GetMapping("/builder/admin1")
+	@GetMapping("/builder/pendingtariff")
 	public String adminPage_pendingtarrif(HttpSession session, Model model) {
 		setCommonData(session, model);
 		model.addAttribute("tariff", tariffService.getPendingTariffs()); // ← use this, not getTariffPackages()
 		return "builder/admin";
 	}
 
-	@PostMapping("/admin/updateStatus")
+	@PostMapping(value = "/admin/updateStatus", consumes = "application/json")
 	@ResponseBody
-	public ResponseEntity<String> updateStatus(@RequestBody Map<String, Object> body) {
-		Long networkId = Long.valueOf(body.get("networkId").toString());
-		String status = body.get("status").toString();
-		tariffService.updateStatus(networkId, status);
+	public ResponseEntity<String> updateStatus(@RequestBody TariffDAO req) {
+
+		// if (req.getTariffPackageId() == null || req.getStatus() == null) {
+		// return ResponseEntity.badRequest().body("Missing data");
+		// }
+
+		tariffService.updateStatus(req.getTariffPackageId(), req.getStatus());
+
 		return ResponseEntity.ok("success");
 	}
 	// ── Step Pages ──
@@ -194,22 +198,22 @@ public class BuilderController {
 	}
 
 	@GetMapping("/builder/step3/filter")
-    @ResponseBody
-    public List<ServicePlanPackMap> getDAtpPlans(@RequestParam String types) {
-    	return service.getDAtpPlans(types);
-    }
+	@ResponseBody
+	public List<ServicePlanPackMap> getDAtpPlans(@RequestParam String types) {
+		return service.getDAtpPlans(types);
+	}
 
 	@GetMapping("/builder/step4")
 	public String step4(HttpSession session, Model model) {
 		setCommonData(session, model);
 		return "builder/step4";
 	}
-	
+
 	@GetMapping("/builder/step4/filter")
-    @ResponseBody
-    public List<ServicePlanPackMap> getAAtpPlans(@RequestParam String types) {
-    	return service.getAAtpPlans(types);
-    }
+	@ResponseBody
+	public List<ServicePlanPackMap> getAAtpPlans(@RequestParam String types) {
+		return service.getAAtpPlans(types);
+	}
 
 	@GetMapping("/builder/step5")
 	public String step5(HttpSession session, Model model) {

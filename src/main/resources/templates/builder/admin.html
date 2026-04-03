@@ -200,33 +200,48 @@
 
     <!-- YOUR CONTENT (UNCHANGED) -->
     <div class="main-content">
-        <div class="page-wrapper">
-            <h1 class="page-title">Admin Control Center</h1>
+    <div class="page-wrapper">
+        <h1 class="page-title">Admin Control Center</h1>
 
-            <div class="draft-list">
-                <div class="draft-card" th:each="t : ${tariff}" th:id="'card-' + ${t.networkId}">
-                    <span class="draft-name" th:text="${t.tariffPackageName}">
-                        PACKAGE_NAME
-                    </span>
+        <div class="draft-list">
 
-                    <div class="actions">
-                        <a class="btn btn-hierarchy" th:href="@{/admin/hierarchy/{id}(id=${t.networkId})}">
-                            View Hierarchy
-                        </a>
+            <!-- Pending Cards -->
+            <div class="draft-card"
+                 th:each="t : ${tariff}"
+                 th:id="'card-' + ${t.tariffPackageId}"
+                 th:if="${t.status} == 'P'">
 
-                        <button class="btn btn-approve" th:onclick="'handleAction(' + ${t.networkId} + ', \'A\')'">
-                            Approve
-                        </button>
+                <span class="draft-name" th:text="${t.tariffPackageName}">
+                    PACKAGE_NAME
+                </span>
 
-                        <button class="btn btn-reject" th:onclick="'handleAction(' + ${t.networkId} + ', \'R\')'">
-                            Reject
-                        </button>
-                    </div>
+                <div class="actions">
+                    <a class="btn btn-hierarchy"
+                       th:href="@{/admin/hierarchy/{id}(id=${t.networkId})}">
+                        View Hierarchy
+                    </a>
+
+                    <button class="btn btn-approve"
+                            th:onclick="'handleAction(' + ${t.tariffPackageId} + ', \'A\')'">
+                        Approve
+                    </button>
+
+                    <button class="btn btn-reject"
+                            th:onclick="'handleAction(' + ${t.tariffPackageId} + ', \'R\')'">
+                        Reject
+                    </button>
                 </div>
             </div>
+
+            <!-- ✅ ADD THIS HERE -->
+            <div th:if="${#lists.isEmpty(tariff.?[status == 'P'])}"
+                 style="text-align:center; margin-top:20px;">
+                <p>No pending tariffs</p>
+            </div>
+
         </div>
     </div>
-
+</div>
     <!-- FOOTER -->
     <footer class="footer">
         <p>© 2026 XIUS</p>
@@ -249,25 +264,28 @@
             window.location.href = "/loginform";
         }
 
-        function handleAction(networkId, status) {
-            const message = status === 'A' ? 'Approved' : 'Rejected';
+        function handleAction(tariffPackageId, status) {
+    const message = status === 'A' ? 'Approved' : 'Rejected';
 
-            fetch('/admin/updateStatus', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ networkId, status })
-            })
-                .then(res => {
-                    if (res.ok) {
-                        alert(message);
-                        document.getElementById('card-' + networkId).remove();
-                    } else {
-                        alert('Error!');
-                    }
-                });
+    fetch('/admin/updateStatus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            tariffPackageId: tariffPackageId, // clean & clear
+            status: status
+        })
+    })
+    .then(res => {
+        if (res.ok) {
+            alert(message);
+            document.getElementById('card-' + tariffPackageId).remove();
+        } else {
+            alert('Error!');
         }
-    </script>
+    });
+}
 
+</script>
 </body>
 
 </html>

@@ -15,19 +15,17 @@ public interface ServicePlanRepository extends JpaRepository<ServicePlanPackMap,
 			"AND TARIFF_PLAN_TYPE = 'TP' " +
 			"AND SERVICE_TYPES = :types", nativeQuery = true)
 	List<ServicePlanPackMap> getPlansByExactType(@Param("types") String types);
-	//TODO why cant we add network id as argument in controller
+	// TODO why cant we add network id as argument in controller
 
 	@Query(value = "SELECT * FROM CS_SERVICE_PLAN_PACK_MAP " +
-	        "WHERE NETWORK_ID = 16 " +
-	        "AND TARIFF_PLAN_TYPE = 'ATP' " +
-	        "AND SERVICE_TYPES = :types",
-	        nativeQuery = true)
+			"WHERE NETWORK_ID = 16 " +
+			"AND TARIFF_PLAN_TYPE = 'ATP' " +
+			"AND SERVICE_TYPES = :types", nativeQuery = true)
 	List<ServicePlanPackMap> getDAtpPlansByExactType(@Param("types") String types);
-	
+
 	@Query(value = "SELECT * FROM CS_SERVICE_PLAN_PACK_MAP " +
-	        "WHERE NETWORK_ID = 16 " +
-	        "AND TARIFF_PLAN_TYPE = 'ATP' " +
-	        "AND SERVICE_TYPES = :types",
-	        nativeQuery = true)
+			"WHERE NETWORK_ID = 16 " +
+			"AND TARIFF_PLAN_TYPE = 'ATP' " +
+			"AND SERVICE_TYPES = :types", nativeQuery = true)
 	List<ServicePlanPackMap> getAAtpPlansByExactType(@Param("types") String types);
 }

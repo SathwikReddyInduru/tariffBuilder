@@ -41,7 +41,7 @@ function checkStepAccess(targetStep) {
         state.s2.length > 0;
 
     if (targetStep > 2 && !hasStep2Data) {
-        alert("Please select Service in Step 2");
+        alert("Please select Service Plan in Step 2");
         return false;
     }
 
@@ -129,7 +129,7 @@ function viewTree() {
 
     document.getElementById('treeName').textContent = name;
     document.getElementById('treeMeta').textContent = `${type ? type + ' | ' : ''}${sub} | ${state.isCorporate ? 'Corporate' : 'Retail'}`;
-    document.getElementById('treeMain').textContent = `📦 Main Service Plan: ${state.s2 ? state.s2.name : 'None'}`;
+    document.getElementById('treeMain').textContent = `📦 Main Service Plan: ${state.s2 ? state.s2[0].name : 'None'}`;
     document.getElementById('treeDatp').textContent = `➕ DATP Components: ${(state.s3 || []).length} items`;
     document.getElementById('treeAatp').textContent = `🛒 AATP Components: ${(state.s4 || []).length} items`;
     document.getElementById('treeCharge').innerHTML = `<b>Charge: RM ${state.price || '0.00'}</b> | <b>Ends: ${state.endDate || 'Permanent'}</b>`;
