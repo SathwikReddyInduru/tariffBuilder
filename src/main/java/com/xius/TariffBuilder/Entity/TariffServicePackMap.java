@@ -9,9 +9,7 @@ import lombok.Data;
 
 @Entity
 @Table(name = "CS_RAT_TARIFF_SERVICE_PACK_MAP")
-
 @IdClass(TariffServicePackMapId.class)
-
 @Data
 public class TariffServicePackMap {
 

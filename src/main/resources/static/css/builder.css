@@ -18,6 +18,143 @@ body {
     overflow-y: scroll;
 }
 
+/* =========================================
+   LOGIN PAGE (SCOPED TO AVOID CONFLICTS)
+========================================= */
+
+.login-page {
+    background: linear-gradient(to right, #5f76d6, #7b4bb7);
+    font-family: Arial;
+}
+
+.login-page .navbar {
+    background: #f3f3f3;
+    padding: 10px;
+}
+
+.login-page .navbar img {
+    margin-left: 20px;
+    height: 50px;
+}
+
+.login-page .card {
+    width: 360px;
+    max-width: 90%;
+    margin: 80px auto;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.login-page .icon {
+    font-size: 50px;
+    color: #4aa3df;
+}
+
+.login-page .subtitle {
+    font-size: 14px;
+    margin: 10px 0 20px;
+    color: #4a5d73;
+}
+
+.login-page .toggle-container {
+    margin-bottom: 15px;
+}
+
+.login-page .switch {
+    position: relative;
+    width: 45px;
+    height: 22px;
+    display: inline-block;
+}
+
+.login-page .switch input {
+    display: none;
+}
+
+.login-page .slider {
+    position: absolute;
+    background: #ccc;
+    border-radius: 20px;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.login-page .slider:before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.login-page input:checked + .slider {
+    background: #2b8cc4;
+}
+
+.login-page input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+.login-page .input-box {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.login-page .input-box label {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.login-page .input-wrapper {
+    position: relative;
+}
+
+.login-page .input-wrapper input {
+    width: 100%;
+    padding: 10px 35px 10px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.login-page .material-icons {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.login-page .buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.login-page .btn {
+    width: 48%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.login-page .cancel {
+    background: #ddd;
+}
+
+.login-page .submit {
+    background: #2b8cc4;
+    color: white;
+}
+
 /* ===== LAYOUT ===== */
 .app-container {
     display: flex;
@@ -398,6 +535,14 @@ body {
 
 .draggable-item b {
     color: #1e293b;
+}
+
+.no-plans {
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+    padding: 20px;
+    font-weight: 500;
 }
 
 /* ===== CENTER SERVICE RENDER ===== */

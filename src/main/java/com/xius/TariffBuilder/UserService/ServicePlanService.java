@@ -14,15 +14,15 @@ public class ServicePlanService {
 	@Autowired
 	private ServicePlanRepository repository;
 
-	public List<ServicePlanPackMap> getPlans(String types) {
-		return repository.getPlansByExactType(types);
+	public List<ServicePlanPackMap> getTpPlans(Long networkId, String types) {
+		return repository.getPlansByExactType(networkId, types);
 	}
 
-	public List<ServicePlanPackMap> getDAtpPlans(String types) {
-		return repository.getDAtpPlansByExactType(types);
-	 }
-	
-	public List<ServicePlanPackMap> getAAtpPlans(String types) {
-		return repository.getAAtpPlansByExactType(types);
-	 }
+	public List<ServicePlanPackMap> getDAtpPlans(Long networkId, String types) {
+		return repository.getDAtpPlansByExactType(networkId, types);
+	}
+
+	public List<ServicePlanPackMap> getAAtpPlans(Long networkId, String types) {
+		return repository.getAAtpPlansByExactType(networkId, types);
+	}
 }

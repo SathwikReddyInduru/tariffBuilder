@@ -1,13 +1,13 @@
 package com.xius.TariffBuilder.Dao;
 
-public class TariffDAO {
+public class TariffDao {
 
     private Long networkId;
     private String tariffPackageName;
     private String status;
     private Long tariffPackageId;
 
-    public TariffDAO(Long networkId, String tariffPackageName, String status, Long tariffPackageId) {
+    public TariffDao(Long networkId, String tariffPackageName, String status, Long tariffPackageId) {
         this.networkId = networkId;
         this.tariffPackageName = tariffPackageName;
         this.status = status;

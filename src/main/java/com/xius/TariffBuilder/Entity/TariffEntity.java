@@ -1,6 +1,9 @@
 package com.xius.TariffBuilder.Entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
@@ -20,5 +23,4 @@ public class TariffEntity {
 
     @Column(name = "STATUS")
     private String status;
-
 }

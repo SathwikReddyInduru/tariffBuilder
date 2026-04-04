@@ -1,9 +1,7 @@
 package com.xius.TariffBuilder.Controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.xius.TariffBuilder.Dao.LoginForm;
-import com.xius.TariffBuilder.Dao.TariffDAO;
+import com.xius.TariffBuilder.Dao.SavePackageRequest;
+import com.xius.TariffBuilder.Dao.TariffDao;
 import com.xius.TariffBuilder.Entity.ServicePlanPackMap;
 import com.xius.TariffBuilder.Entity.User;
 import com.xius.TariffBuilder.UserService.AuthService;
 import com.xius.TariffBuilder.UserService.ServicePlanService;
+import com.xius.TariffBuilder.UserService.TariffSaveService;
 import com.xius.TariffBuilder.UserService.TariffService;
 
 import jakarta.servlet.http.HttpSession;
@@ -30,14 +30,17 @@ import jakarta.servlet.http.HttpSession;
 public class BuilderController {
 	@Autowired
 	private AuthService authService;
-	//
+
 	@Autowired
 	private ServicePlanService service;
 
 	@Autowired
 	private TariffService tariffService;
 
-	// ✅ Show Login Page
+	@Autowired
+	private TariffSaveService tariffSaveService;
+
+	// Show Login Page
 	@GetMapping("/loginform")
 	public String showLoginForm(Model model) {
 		model.addAttribute("loginForm", new LoginForm());
@@ -57,58 +60,50 @@ public class BuilderController {
 		// ================= ADMIN LOGIN =================
 		if ("ADMIN".equalsIgnoreCase(role)) {
 
-			// validation
 			if (username == null || username.trim().isEmpty()) {
-
 				model.addAttribute("message", "Please enter Admin Username");
 				model.addAttribute("role", "ADMIN");
 				model.addAttribute("loginForm", loginForm);
-
 				return "login";
 			}
 
 			if (password == null || password.trim().isEmpty()) {
-
 				model.addAttribute("message", "Please enter Admin Password");
 				model.addAttribute("role", "ADMIN");
 				model.addAttribute("loginForm", loginForm);
-
 				return "login";
 			}
 
-			// correct credentials
 			if ("admin".equalsIgnoreCase(username) && "admin123".equals(password)) {
-
 				session.setAttribute("username", "admin");
-
 				return "redirect:/builder/admin";
 			}
 
-			// wrong credentials
 			model.addAttribute("message", "Invalid Admin Credentials");
-
-			model.addAttribute("role", "ADMIN"); // keep toggle ON
-			model.addAttribute("loginForm", loginForm); // keep entered values
-
-			return "login"; // SAME PAGE (no redirect)
+			model.addAttribute("role", "ADMIN");
+			model.addAttribute("loginForm", loginForm);
+			return "login";
 		}
 
 		// ================= USER LOGIN =================
 		if (network == null || network.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Network Name");
 			model.addAttribute("role", "USER");
+			model.addAttribute("loginForm", loginForm); // FIX: was missing, fields cleared on error
 			return "login";
 		}
 
 		if (username == null || username.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Username");
 			model.addAttribute("role", "USER");
+			model.addAttribute("loginForm", loginForm); // FIX: was missing
 			return "login";
 		}
 
 		if (password == null || password.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Password");
 			model.addAttribute("role", "USER");
+			model.addAttribute("loginForm", loginForm); // FIX: was missing
 			return "login";
 		}
 
@@ -117,6 +112,7 @@ public class BuilderController {
 		if (user == null) {
 			model.addAttribute("message", "Invalid Username / Password / Network");
 			model.addAttribute("role", "USER");
+			model.addAttribute("loginForm", loginForm); // FIX: was missing
 			return "login";
 		}
 
@@ -129,110 +125,118 @@ public class BuilderController {
 
 	@GetMapping("/builder/admin")
 	public String adminPage(HttpSession session, Model model) {
+		if (isNotLoggedIn(session))
+			return "redirect:/loginform"; // ADDED
 		setCommonData(session, model);
-		List<TariffDAO> tariffList = tariffService.getTariffPackages();
-		model.addAttribute("tariff", tariffList); // "tariff" matches ${tariff} in HTML
+		List<TariffDao> tariffList = tariffService.getTariffPackages();
+		model.addAttribute("tariff", tariffList);
 		return "builder/admin";
 	}
 
-	// @GetMapping("/builder/admin")
-	// public String adminPage(HttpSession session, Model model) {
-	// setCommonData(session, model);
-	// return "builder/admin"; // must be in templates/builder/
-	// }
-
 	@GetMapping("/builder/pendingtariff")
 	public String adminPage_pendingtarrif(HttpSession session, Model model) {
+		if (isNotLoggedIn(session))
+			return "redirect:/loginform"; // ADDED
 		setCommonData(session, model);
-		model.addAttribute("tariff", tariffService.getPendingTariffs()); // ← use this, not getTariffPackages()
+		model.addAttribute("tariff", tariffService.getPendingTariffs());
 		return "builder/admin";
 	}
 
 	@PostMapping(value = "/admin/updateStatus", consumes = "application/json")
 	@ResponseBody
-	public ResponseEntity<String> updateStatus(@RequestBody TariffDAO req) {
-
-		// if (req.getTariffPackageId() == null || req.getStatus() == null) {
-		// return ResponseEntity.badRequest().body("Missing data");
-		// }
-
+	public ResponseEntity<String> updateStatus(@RequestBody TariffDao req) {
 		tariffService.updateStatus(req.getTariffPackageId(), req.getStatus());
-
 		return ResponseEntity.ok("success");
 	}
+
 	// ── Step Pages ──
 
 	@GetMapping("/builder/step1")
 	public String step1(HttpSession session, Model model) {
+		if (isNotLoggedIn(session))
+			return "redirect:/loginform"; // ADDED
 		setCommonData(session, model);
 		return "builder/step1";
 	}
 
 	@GetMapping("/builder/step2")
 	public String step2(HttpSession session, Model model) {
+		if (isNotLoggedIn(session))
+			return "redirect:/loginform"; // ADDED
 		setCommonData(session, model);
 		return "builder/step2";
 	}
 
 	@GetMapping("/builder/step2/filter")
 	@ResponseBody
-	public List<Map<String, Object>> getPlans(@RequestParam String types,
-			HttpSession session) {
-
+	public List<ServicePlanPackMap> getTpPlans(@RequestParam String types, HttpSession session) {
 		Long networkId = (Long) session.getAttribute("networkId");
-
-		List<ServicePlanPackMap> plans = service.getPlans(types);
-
-		return plans.stream().map(p -> {
-			Map<String, Object> map = new HashMap<>();
-			map.put("servicePackageId", p.getServicePackageId());
-			map.put("servicePackageName", p.getServicePackageName());
-			return map;
-		}).collect(Collectors.toList());
+		return service.getTpPlans(networkId, types);
 	}
 
 	@GetMapping("/builder/step3")
 	public String step3(HttpSession session, Model model) {
+		if (isNotLoggedIn(session))
+			return "redirect:/loginform"; // ADDED
 		setCommonData(session, model);
 		return "builder/step3";
 	}
 
 	@GetMapping("/builder/step3/filter")
 	@ResponseBody
-	public List<ServicePlanPackMap> getDAtpPlans(@RequestParam String types) {
-		return service.getDAtpPlans(types);
+	public List<ServicePlanPackMap> getDAtpPlans(@RequestParam String types, HttpSession session) {
+		Long networkId = (Long) session.getAttribute("networkId");
+		return service.getDAtpPlans(networkId, types);
 	}
 
 	@GetMapping("/builder/step4")
 	public String step4(HttpSession session, Model model) {
+		if (isNotLoggedIn(session))
+			return "redirect:/loginform"; // ADDED
 		setCommonData(session, model);
 		return "builder/step4";
 	}
 
 	@GetMapping("/builder/step4/filter")
 	@ResponseBody
-	public List<ServicePlanPackMap> getAAtpPlans(@RequestParam String types) {
-		return service.getAAtpPlans(types);
+	public List<ServicePlanPackMap> getAAtpPlans(@RequestParam String types, HttpSession session) {
+		Long networkId = (Long) session.getAttribute("networkId");
+		return service.getAAtpPlans(networkId, types);
 	}
 
 	@GetMapping("/builder/step5")
 	public String step5(HttpSession session, Model model) {
+		if (isNotLoggedIn(session))
+			return "redirect:/loginform"; // ADDED
 		setCommonData(session, model);
 		return "builder/step5";
 	}
 
-	// ✅ COMMON METHOD
+	@GetMapping("/tariffPackages")
+	@ResponseBody
+	public List<TariffDao> getTariffPackages() {
+		return tariffService.getTariffPackages();
+	}
+
+	@PostMapping("/saveConfig")
+	@ResponseBody
+	public ResponseEntity<?> saveConfig(@RequestBody SavePackageRequest request) {
+		Long id = tariffSaveService.savePackage(
+				request,
+				request.getNetworkId(),
+				request.getUsername());
+		return ResponseEntity.ok(Map.of("success", true, "packageId", id));
+	}
+
+	// COMMON METHOD
 	private void setCommonData(HttpSession session, Model model) {
 		model.addAttribute("username", session.getAttribute("username"));
 		model.addAttribute("network", session.getAttribute("network"));
 		model.addAttribute("networkId", session.getAttribute("networkId"));
 	}
 
-	@GetMapping("/tariffPackages")
-	@ResponseBody
-	public List<TariffDAO> getTariffPackages() {
-
-		return tariffService.getTariffPackages();
+	// ADDED: returns true if user is not logged in
+	private boolean isNotLoggedIn(HttpSession session) {
+		return session.getAttribute("username") == null;
 	}
-
 }

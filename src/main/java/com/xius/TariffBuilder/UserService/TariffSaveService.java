@@ -1,6 +1,5 @@
 package com.xius.TariffBuilder.UserService;
 
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -23,194 +22,169 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TariffSaveService {
 
-    private final TariffPackageRepository packageRepo;
-    private final TariffPublicityMapRepository publicityRepo;
-    private final TariffServicePackMapRepository serviceRepo;
-    private final PeriodicChargeRepository periodicRepo;
+        private final TariffPackageRepository packageRepo;
+        private final TariffPublicityMapRepository publicityRepo;
+        private final TariffServicePackMapRepository serviceRepo;
+        private final PeriodicChargeRepository periodicRepo;
 
-    private static final DateTimeFormatter formatter =
-            DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
+        @Transactional
+        public Long savePackage(
+                        SavePackageRequest req,
+                        Long networkId,
+                        String username) {
 
-    @Transactional
-    public Long savePackage(
-            SavePackageRequest req,
-            Long networkId,
-            String username)
-    {
+                /* 1️⃣ CS_RAT_TARIFF_PACKAGE */
 
-        /* 1️⃣ CS_RAT_TARIFF_PACKAGE */
+                TariffPackage pkg = new TariffPackage();
 
-        TariffPackage pkg = new TariffPackage();
+                pkg.setTariffPackageDesc(
+                                req.getTariffPackageDesc().toUpperCase());
 
-        pkg.setTariffPackageDesc(
-                req.getTariffPackageDesc().toUpperCase());
+                pkg.setNetworkId(networkId);
 
-        pkg.setNetworkId(networkId);
+                pkg.setEndDate(
+                                LocalDate.parse(
+                                                req.getEndDate(),
+                                                formatter));
 
-        pkg.setEndDate(
-                LocalDate.parse(
-                        req.getEndDate(),
-                        formatter));
+                pkg.setChargeId(
+                                String.valueOf(req.getChargeId()));
 
-        pkg.setChargeId(
-                String.valueOf(req.getChargeId()));
+                pkg.setPackageType(
+                                req.getPackageType());
 
-        pkg.setPackageType(
-                req.getPackageType());
+                pkg.setSubscriberCategoryId(
+                                req.getSubscriberCategoryId());
 
-        pkg.setSubscriberCategoryId(
-                req.getSubscriberCategoryId());
+                pkg.setIsCorporateYn(
+                                req.getIsCorporateYn());
 
-        pkg.setIsCorporateYn(
-                req.getIsCorporateYn());
+                pkg.setTariffPackCategory(
+                                req.getTariffPackCategory());
 
-        pkg.setTariffPackCategory(
-                req.getTariffPackCategory());
+                pkg.setPublicityId(
+                                req.getPublicityId());
 
-        pkg.setPublicityId(
-                req.getPublicityId());
+                TariffPackage saved = packageRepo.save(pkg);
 
-        TariffPackage saved =
-                packageRepo.save(pkg);
+                Long tariffPackageId = saved.getTariffPackageId();
 
-        Long tariffPackageId =
-                saved.getTariffPackageId();
+                /* 2️⃣ CS_RAT_PERIODIC_CHARGE_INFO */
 
+                if (!periodicRepo.existsByChargeIdAndNetworkId(
+                                String.valueOf(req.getChargeId()),
+                                networkId)) {
 
+                        PeriodicChargeInfo charge = new PeriodicChargeInfo();
 
-        /* 2️⃣ CS_RAT_PERIODIC_CHARGE_INFO */
+                        charge.setChargeId(
+                                        String.valueOf(req.getChargeId()));
 
-        if(!periodicRepo.existsByChargeIdAndNetworkId(
-                String.valueOf(req.getChargeId()),
-                networkId))
-        {
+                        charge.setNetworkId(networkId);
 
-            PeriodicChargeInfo charge =
-                    new PeriodicChargeInfo();
+                        charge.setServiceType(1);
 
-            charge.setChargeId(
-                    String.valueOf(req.getChargeId()));
+                        charge.setRentalType("MONTHLY");
 
-            charge.setNetworkId(networkId);
+                        charge.setRentalPeriod(30);
 
-            charge.setServiceType(1);
+                        charge.setCreatedBy(username);
 
-            charge.setRentalType("MONTHLY");
+                        periodicRepo.save(charge);
+                }
 
-            charge.setRentalPeriod(30);
+                /* 3️⃣ CS_RAT_TPID_VS_PUBLICITYID */
 
-            charge.setCreatedBy(username);
+                TariffPublicityMap pub = new TariffPublicityMap();
 
-            periodicRepo.save(charge);
+                pub.setNetworkId(networkId);
+
+                pub.setTariffPackageId(
+                                tariffPackageId);
+
+                pub.setTariffPackageDesc(
+                                req.getTariffPackageDesc().toUpperCase());
+
+                pub.setPublicityId(
+                                req.getPublicityId());
+
+                pub.setRecordInsertedBy(username);
+
+                pub.setRecInsertedDate(
+                                LocalDate.now());
+
+                publicityRepo.save(pub);
+
+                /* 4️⃣ TP */
+
+                TariffServicePackMap tp = new TariffServicePackMap();
+
+                tp.setTariffPackageId(
+                                tariffPackageId);
+
+                tp.setServicePackageId(
+                                req.getTariffPlanId());
+
+                tp.setNetworkId(networkId);
+
+                tp.setTariffPlanType("TP");
+
+                serviceRepo.save(tp);
+
+                /* 5️⃣ DATP */
+
+                if (req.getDefaultAtps() != null) {
+                        for (var item : req.getDefaultAtps()) {
+
+                                TariffServicePackMap datp = new TariffServicePackMap();
+
+                                datp.setTariffPackageId(
+                                                tariffPackageId);
+
+                                datp.setServicePackageId(
+                                                item.getServicePackageId());
+
+                                datp.setNetworkId(networkId);
+
+                                datp.setTariffPlanType("DATP");
+
+                                datp.setChargeId(
+                                                String.valueOf(item.getChargeId()));
+
+                                datp.setPriority(1);
+
+                                datp.setServiceDuration(30);
+
+                                serviceRepo.save(datp);
+                        }
+                }
+
+                /* 6️⃣ AATP */
+
+                if (req.getAllowedAtps() != null) {
+                        for (var item : req.getAllowedAtps()) {
+
+                                TariffServicePackMap aatp = new TariffServicePackMap();
+
+                                aatp.setTariffPackageId(
+                                                tariffPackageId);
+
+                                aatp.setServicePackageId(
+                                                item.getServicePackageId());
+
+                                aatp.setNetworkId(networkId);
+
+                                aatp.setTariffPlanType("AATP");
+
+                                aatp.setChargeId(
+                                                String.valueOf(item.getChargeId()));
+
+                                serviceRepo.save(aatp);
+                        }
+                }
+
+                return tariffPackageId;
         }
-
-
-
-        /* 3️⃣ CS_RAT_TPID_VS_PUBLICITYID */
-
-        TariffPublicityMap pub =
-                new TariffPublicityMap();
-
-        pub.setNetworkId(networkId);
-
-        pub.setTariffPackageId(
-                tariffPackageId);
-
-        pub.setTariffPackageDesc(
-                req.getTariffPackageDesc().toUpperCase());
-
-        pub.setPublicityId(
-                req.getPublicityId());
-
-        pub.setRecordInsertedBy(username);
-
-        pub.setRecInsertedDate(
-                LocalDate.now());
-
-        publicityRepo.save(pub);
-
-
-
-        /* 4️⃣ TP */
-
-        TariffServicePackMap tp =
-                new TariffServicePackMap();
-
-        tp.setTariffPackageId(
-                tariffPackageId);
-
-        tp.setServicePackageId(
-                req.getTariffPlanId());
-
-        tp.setNetworkId(networkId);
-
-        tp.setTariffPlanType("TP");
-
-        serviceRepo.save(tp);
-
-
-
-        /* 5️⃣ DATP */
-
-        if(req.getDefaultAtps()!=null)
-        {
-            for(var item : req.getDefaultAtps())
-            {
-
-                TariffServicePackMap datp =
-                        new TariffServicePackMap();
-
-                datp.setTariffPackageId(
-                        tariffPackageId);
-
-                datp.setServicePackageId(
-                        item.getServicePackageId());
-
-                datp.setNetworkId(networkId);
-
-                datp.setTariffPlanType("DATP");
-
-                datp.setChargeId(
-                        String.valueOf(item.getChargeId()));
-
-                datp.setPriority(1);
-
-                datp.setServiceDuration(30);
-
-                serviceRepo.save(datp);
-            }
-        }
-
-
-
-        /* 6️⃣ AATP */
-
-        if(req.getAllowedAtps()!=null)
-        {
-            for(var item : req.getAllowedAtps())
-            {
-
-                TariffServicePackMap aatp =
-                        new TariffServicePackMap();
-
-                aatp.setTariffPackageId(
-                        tariffPackageId);
-
-                aatp.setServicePackageId(
-                        item.getServicePackageId());
-
-                aatp.setNetworkId(networkId);
-
-                aatp.setTariffPlanType("AATP");
-
-                aatp.setChargeId(
-                        String.valueOf(item.getChargeId()));
-
-                serviceRepo.save(aatp);
-            }
-        }
-
-        return tariffPackageId;
-    }
 }

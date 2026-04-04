@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class TariffServicePackMapId implements Serializable {
 
     private Long tariffPackageId;
-
     private Long servicePackageId;
 }

@@ -9,5 +9,4 @@ public class TariffBuilderApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TariffBuilderApplication.class, args);
 	}
-
 }

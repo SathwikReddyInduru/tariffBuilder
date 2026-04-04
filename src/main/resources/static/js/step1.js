@@ -2,7 +2,9 @@ window.onload = function () {
     sessionStorage.removeItem('pkgType');
     sessionStorage.removeItem('pkgSubType');
     sessionStorage.removeItem('state');
-    sessionStorage.removeItem('selectedSvcs');
+    sessionStorage.removeItem('selectedSvcs_s2');
+    sessionStorage.removeItem('selectedSvcs_s3');
+    sessionStorage.removeItem('selectedSvcs_s4');
     sessionStorage.removeItem('configName');
 
     const input = document.getElementById('configName');

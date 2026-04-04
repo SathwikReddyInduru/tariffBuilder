@@ -6,23 +6,23 @@ import lombok.Data;
 
 public class SavePackageRequest {
 
-    private Long networkId;
-    private String username;
+	private Long networkId;
+	private String username;
 
-    private String packageType;
-    private String tariffPackCategory;
+	private String packageType;
+	private String tariffPackCategory;
 
-    private Long tariffPlanId;
+	private Long tariffPlanId;
 
-    private List<AtpItem> defaultAtps;
-    private List<AtpItem> allowedAtps;
+	private List<AtpItem> defaultAtps;
+	private List<AtpItem> allowedAtps;
 
-    private String tariffPackageDesc;
-    private String endDate;
-    private String publicityId;
-    private String chargeId;
+	private String tariffPackageDesc;
+	private String endDate;
+	private String publicityId;
+	private String chargeId;
 
-    public Long getNetworkId() {
+	public Long getNetworkId() {
 		return networkId;
 	}
 
@@ -102,8 +102,6 @@ public class SavePackageRequest {
 		this.publicityId = publicityId;
 	}
 
-
-
 	public String getChargeId() {
 		return chargeId;
 	}
@@ -137,17 +135,17 @@ public class SavePackageRequest {
 	}
 
 	private Long subscriberCategoryId;
-    private String isCorporateYn;
-    private String description;
+	private String isCorporateYn;
+	private String description;
 
-    @Data
-    public static class AtpItem {
+	@Data
+	public static class AtpItem {
 
-        private Long servicePackageId;
-        private String chargeId;
+		private Long servicePackageId;
+		private String chargeId;
 
-        private Integer priority;
-        private Integer effectiveStartOffset;
-        private Integer serviceDuration;
-    }
+		private Integer priority;
+		private Integer effectiveStartOffset;
+		private Integer serviceDuration;
+	}
 }

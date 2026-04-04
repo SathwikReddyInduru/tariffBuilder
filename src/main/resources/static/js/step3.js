@@ -16,7 +16,7 @@ window.addEventListener('DOMContentLoaded', () => {
     state.s3.forEach(item => renderCard(item));
 
     // restore pills
-    const saved = JSON.parse(sessionStorage.getItem('selectedSvcs') || '[]');
+    const saved = JSON.parse(sessionStorage.getItem('selectedSvcs_s3') || '[]');
 
     saved.forEach(svc => {
         const pill = document.querySelector(`.svc-pill[data-svc="${svc}"]`);
@@ -40,8 +40,55 @@ function toggleSvc(service, el) {
         el.classList.add('active');
     }
 
-    sessionStorage.setItem('selectedSvcs', JSON.stringify(selectedSvcs));
+    sessionStorage.setItem('selectedSvcs_s3', JSON.stringify(selectedSvcs));
+
+    if (selectedSvcs.length === 0) {
+        clearCenter();
+    } else {
+        validateCenterPlans();
+    }
+
     refreshSidebar();
+}
+
+function clearCenter() {
+
+    const state = getState();
+
+    state.s3 = [];
+    saveState(state);
+
+    document.getElementById('dropArea').innerHTML = '';
+}
+
+function validateCenterPlans() {
+
+    const state = getState();
+
+    if (!state.s3 || state.s3.length === 0) return;
+
+    const svcMap = {
+        '201': 'VOICE',
+        '202': 'VOICE',
+        '203': 'SMS',
+        '204': 'DATA',
+        '205': 'DATA'
+    };
+
+    // filter valid items
+    const validItems = state.s3.filter(item => {
+        const svc = svcMap[item.id];
+        return selectedSvcs.includes(svc);
+    });
+
+    // update state
+    state.s3 = validItems;
+    saveState(state);
+
+    // re-render UI
+    const container = document.getElementById('dropArea');
+    container.innerHTML = '';
+    state.s3.forEach(item => renderCard(item));
 }
 
 // ---------- SIDEBAR ----------
@@ -57,14 +104,14 @@ function refreshSidebar() {
         return;
     }
 
-    list.innerHTML = "Loading...";
+    list.innerHTML = '<p class="no-plans">Loading...</p>';
 
     fetch(`/builder/step3/filter?types=${types}`)
         .then(res => res.json())
         .then(data => {
 
             if (!data || !data.length) {
-                list.innerHTML = '<p>No data</p>';
+                list.innerHTML = '<p class="no-plans">No plans</p>';
                 return;
             }
 
@@ -116,63 +163,60 @@ function renderCard(item) {
     card.id = `card-s3-${item.id}`;
 
     card.innerHTML = `
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <b>${item.name}</b>
-        <span onclick="removeItem('${item.id}')" style="color:red; cursor:pointer;">✕</span>
-    </div>
 
-    <div class="card-grid">
-
-        <div class="card-field">
-            <label>VALIDITY</label>
-            <select onchange="updateField('${item.id}', 'validity', this.value)">
-                <option ${item.validity === 'Monthly' ? 'selected' : ''}>Monthly</option>
-                <option ${item.validity === 'Weekly' ? 'selected' : ''}>Weekly</option>
-            </select>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <b>${item.name}</b>
+            <span onclick="removeItem('${item.id}')" style="color:red; cursor:pointer;">✕</span>
         </div>
 
-        <div class="card-field">
-            <label>MIDNIGHT EXPIRY</label>
-            <select onchange="updateField('${item.id}', 'midnightExpiry', this.value)">
-                <option ${item.midnightExpiry === 'No' ? 'selected' : ''}>No</option>
-                <option ${item.midnightExpiry === 'Yes' ? 'selected' : ''}>Yes</option>
-            </select>
-        </div>
-
-        <div class="card-field">
-            <label>AUTO RENEWAL</label>
-            <select onchange="handleRenewalChange('${item.id}', this.value)">
-                <option ${item.renewal === 'No' ? 'selected' : ''}>No</option>
-                <option ${item.renewal === 'Yes' ? 'selected' : ''}>Yes</option>
-            </select>
-        </div>
-
-        <div id="renewal-${item.id}" style="display:${item.renewal === 'Yes' ? 'contents' : 'none'};">
-
+        <div class="card-grid">
             <div class="card-field">
-                <label>RENTAL</label>
-                <input type="number"
-                       value="${item.rental || ''}"
-                       oninput="updateField('${item.id}', 'rental', this.value)">
+                <label>VALIDITY</label>
+                <select onchange="updateField('${item.id}', 'validity', this.value)">
+                    <option ${item.validity === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                    <option ${item.validity === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                </select>
             </div>
 
             <div class="card-field">
-                <label>MAX COUNT</label>
-                <input type="number"
-                       value="${item.maxCount || ''}"
-                       oninput="updateField('${item.id}', 'maxCount', this.value)">
+                <label>MIDNIGHT EXPIRY</label>
+                <select onchange="updateField('${item.id}', 'midnightExpiry', this.value)">
+                    <option ${item.midnightExpiry === 'No' ? 'selected' : ''}>No</option>
+                    <option ${item.midnightExpiry === 'Yes' ? 'selected' : ''}>Yes</option>
+                </select>
             </div>
 
             <div class="card-field">
-                <label>FREE CYCLES</label>
-                <input type="number"
-                       value="${item.freeCycles || 0}"
-                       oninput="updateField('${item.id}', 'freeCycles', this.value)">
+                <label>AUTO RENEWAL</label>
+                <select onchange="handleRenewalChange('${item.id}', this.value)">
+                    <option ${item.renewal === 'No' ? 'selected' : ''}>No</option>
+                    <option ${item.renewal === 'Yes' ? 'selected' : ''}>Yes</option>
+                </select>
             </div>
 
-        </div>
+            <div id="renewal-${item.id}" style="display:${item.renewal === 'Yes' ? 'contents' : 'none'};">
+                <div class="card-field">
+                    <label>RENTAL</label>
+                    <input type="number"
+                        value="${item.rental || ''}"
+                        oninput="updateField('${item.id}', 'rental', this.value)">
+                </div>
 
-    </div>
+                <div class="card-field">
+                    <label>MAX COUNT</label>
+                    <input type="number"
+                        value="${item.maxCount || ''}"
+                        oninput="updateField('${item.id}', 'maxCount', this.value)">
+                </div>
+
+                <div class="card-field">
+                    <label>FREE CYCLES</label>
+                    <input type="number"
+                        value="${item.freeCycles || 0}"
+                        oninput="updateField('${item.id}', 'freeCycles', this.value)">
+                </div>
+            </div>
+        </div>
     `;
 
     container.appendChild(card);

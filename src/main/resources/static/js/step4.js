@@ -1,4 +1,4 @@
-// ---------- STATE ----------
+// ---------- Step4.js ----------
 function getState() {
     return JSON.parse(sessionStorage.getItem('builderState') || '{"s4":[]}');
 }
@@ -16,7 +16,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     state.s4.forEach(item => renderCard(item));
 
-    const saved = JSON.parse(sessionStorage.getItem('selectedSvcs') || '[]');
+    const saved = JSON.parse(sessionStorage.getItem('selectedSvcs_s4') || '[]');
 
     saved.forEach(svc => {
         const pill = document.querySelector(`.svc-pill[data-svc="${svc}"]`);
@@ -40,8 +40,52 @@ function toggleSvc(service, el) {
         el.classList.add('active');
     }
 
-    sessionStorage.setItem('selectedSvcs', JSON.stringify(selectedSvcs));
+    sessionStorage.setItem('selectedSvcs_s4', JSON.stringify(selectedSvcs));
+
+    if (selectedSvcs.length === 0) {
+        clearCenter();
+    } else {
+        validateCenterPlans();
+    }
+
     refreshSidebar();
+}
+
+function clearCenter() {
+
+    const state = getState();
+
+    state.s4 = [];
+    saveState(state);
+
+    document.getElementById('dropArea').innerHTML = '';
+}
+
+function validateCenterPlans() {
+
+    const state = getState();
+
+    if (!state.s4 || state.s4.length === 0) return;
+
+    const svcMap = {
+        '201': 'VOICE',
+        '202': 'VOICE',
+        '203': 'SMS',
+        '204': 'DATA',
+        '205': 'DATA'
+    };
+
+    const validItems = state.s4.filter(item => {
+        const svc = svcMap[item.id];
+        return selectedSvcs.includes(svc);
+    });
+
+    state.s4 = validItems;
+    saveState(state);
+
+    const container = document.getElementById('dropArea');
+    container.innerHTML = '';
+    state.s4.forEach(item => renderCard(item));
 }
 
 // ---------- SIDEBAR ----------
@@ -63,7 +107,7 @@ function refreshSidebar() {
         .then(data => {
 
             if (!data || !data.length) {
-                list.innerHTML = "<p>No data</p>";
+                list.innerHTML = "<p>No Plans</p>";
                 return;
             }
 

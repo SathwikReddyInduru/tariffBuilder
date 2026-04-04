@@ -11,21 +11,21 @@ import com.xius.TariffBuilder.Entity.ServicePlanPackMap;
 public interface ServicePlanRepository extends JpaRepository<ServicePlanPackMap, String> {
 
 	@Query(value = "SELECT * FROM CS_SERVICE_PLAN_PACK_MAP " +
-			"WHERE NETWORK_ID = 16 " +
+			"WHERE NETWORK_ID = :networkId " +
 			"AND TARIFF_PLAN_TYPE = 'TP' " +
 			"AND SERVICE_TYPES = :types", nativeQuery = true)
-	List<ServicePlanPackMap> getPlansByExactType(@Param("types") String types);
-	// TODO why cant we add network id as argument in controller
+	List<ServicePlanPackMap> getPlansByExactType(@Param("networkId") Long networkId,
+			@Param("types") String types);
 
 	@Query(value = "SELECT * FROM CS_SERVICE_PLAN_PACK_MAP " +
-			"WHERE NETWORK_ID = 16 " +
+			"WHERE NETWORK_ID = :networkId " +
 			"AND TARIFF_PLAN_TYPE = 'ATP' " +
 			"AND SERVICE_TYPES = :types", nativeQuery = true)
-	List<ServicePlanPackMap> getDAtpPlansByExactType(@Param("types") String types);
+	List<ServicePlanPackMap> getDAtpPlansByExactType(@Param("networkId") Long networkId, @Param("types") String types);
 
 	@Query(value = "SELECT * FROM CS_SERVICE_PLAN_PACK_MAP " +
-			"WHERE NETWORK_ID = 16 " +
+			"WHERE NETWORK_ID = :networkId " +
 			"AND TARIFF_PLAN_TYPE = 'ATP' " +
 			"AND SERVICE_TYPES = :types", nativeQuery = true)
-	List<ServicePlanPackMap> getAAtpPlansByExactType(@Param("types") String types);
+	List<ServicePlanPackMap> getAAtpPlansByExactType(@Param("networkId") Long networkId, @Param("types") String types);
 }

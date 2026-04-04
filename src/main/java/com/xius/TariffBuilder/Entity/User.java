@@ -8,7 +8,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-
 @Entity
 @Data
 @Table(name = "UMS_MT_USER")
@@ -24,5 +23,4 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "NETWORK_ID")
     private Network network;
-
 }

@@ -1,6 +1,3 @@
-// step5.js — Step 5 (Finalize Pricing)
-// Writes price, publicityCode, endDate, isCorporate to state
-
 window.addEventListener('DOMContentLoaded', () => {
     // Restore previously entered values
     const state = getState();

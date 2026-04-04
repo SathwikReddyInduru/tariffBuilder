@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.xius.TariffBuilder.Dao.TariffDAO;
+import com.xius.TariffBuilder.Dao.TariffDao;
 import com.xius.TariffBuilder.Entity.TariffEntity;
 import com.xius.TariffBuilder.UserRepository.TariffRepository;
 
@@ -16,11 +16,11 @@ public class TariffService {
 	@Autowired
 	private TariffRepository repository;
 
-	public List<TariffDAO> getTariffPackages() {
+	public List<TariffDao> getTariffPackages() {
 
 		List<Object[]> result = repository.getTariffPackagesStatic();
 
-		List<TariffDAO> list = new ArrayList<>();
+		List<TariffDao> list = new ArrayList<>();
 
 		for (Object[] row : result) {
 
@@ -30,7 +30,7 @@ public class TariffService {
 			String status = (String) row[3];
 			System.out.println(networkId + "  " + tariffName + "  " + status);
 
-			list.add(new TariffDAO(networkId, tariffName, status, tariffPackageId));
+			list.add(new TariffDao(networkId, tariffName, status, tariffPackageId));
 		}
 
 		return list;

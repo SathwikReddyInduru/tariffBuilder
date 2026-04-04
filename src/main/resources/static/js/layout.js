@@ -24,8 +24,14 @@ window.addEventListener('DOMContentLoaded', () => {
 // ── Step access guard ──
 function checkStepAccess(targetStep) {
 
-    const pkgType = sessionStorage.getItem('pkgType');
+    const currentPath = window.location.pathname;
 
+    // detect current step
+    if (currentPath.includes(`step${targetStep}`)) {
+        return true; // allow reload, no alert
+    }
+
+    const pkgType = sessionStorage.getItem('pkgType');
     const state = JSON.parse(sessionStorage.getItem('state') || '{}');
 
     // ---------- STEP 1 ----------
@@ -101,23 +107,134 @@ document.addEventListener("click", function (e) {
 
 // ── Save package config ──
 async function saveConfiguration() {
-    const name = document.getElementById('configName').value;
-    if (!name) { alert('Enter Configuration Name'); return; }
 
-    const state = getState();
-    const pkgType = sessionStorage.getItem('pkgType') || '';
-    const pkgSubType = sessionStorage.getItem('pkgSubType') || '';
+    const configName = document.getElementById("configName").value;
 
-    const payload = { name, id: Date.now(), pkgType, pkgSubType, state };
+    if (!configName) {
+        alert("Enter Configuration Name");
+        return;
+    }
+
+    const state = JSON.parse(sessionStorage.getItem("state"));
+
+    if (!state?.s2?.length) {
+        alert("Step 2 required");
+        return;
+    }
+
+    if (!state?.s3?.length) {
+        alert("Step 3 required");
+        return;
+    }
+
+    /* Step 3 name → chargeId */
+    const step3Name = state.s3[0].name
+        .replace(/\s+/g, '_')
+        .toUpperCase();
+
+    const chargeId = step3Name + "_PR";
+
+    function formatDateToMMDDYYYY(dateStr) {
+        if (!dateStr) return "12/31/2030"; // default
+
+        const [year, month, day] = dateStr.split("-");
+        return `${month}/${day}/${year}`;
+    }
+
+    const payload =
+    {
+        networkId: 16,
+
+        username: "USER1",
+
+        packageType:
+            sessionStorage.getItem("pkgType"),
+
+        tariffPackCategory:
+            sessionStorage.getItem("pkgSubType") || "GENERAL",
+
+        tariffPackageDesc:
+            configName,
+
+        endDate: formatDateToMMDDYYYY(state.endDate) ||
+            "12/31/2030",
+
+        publicityId:
+            state.publicityCode || "DEFAULT_PUB",
+
+        chargeId:
+            chargeId,
+
+        isCorporateYn:
+            state.isCorporate ? "Y" : "N",
+
+        tariffPlanId:
+            Number(state.s2[0].id),
+
+        defaultAtps:
+            state.s3.map(item => ({
+
+                servicePackageId:
+                    Number(item.id),
+
+                chargeId:
+                    chargeId
+            })),
+
+        allowedAtps:
+            state.s4.map(item => ({
+
+                servicePackageId:
+                    Number(item.id),
+
+                chargeId:
+                    chargeId
+            }))
+    };
+
+    console.log("REQUEST", payload);
 
     try {
-        const res = await fetch('/api/v1/saveTariff', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (res.ok) alert('Package Saved.');
-    } catch (e) { alert('Backend error.'); }
+        const response =
+            await fetch("/saveConfig", {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(payload)
+            });
+
+        const result = await response.json();
+
+        console.log("RESPONSE", result);
+
+        if (response.ok) {
+            alert("Configuration Saved Successfully");
+
+            clearBuilderSession();
+            // window.location.href = '/builder/step1';
+        }
+        else {
+            alert(result.error);
+        }
+    }
+    catch (error) {
+        console.error(error);
+
+        alert("Server error");
+    }
+}
+
+function clearBuilderSession() {
+    sessionStorage.removeItem('state');
+    sessionStorage.removeItem('selectedSvcs_s2');
+    sessionStorage.removeItem('selectedSvcs_s3');
+    sessionStorage.removeItem('selectedSvcs_s4');
+    sessionStorage.removeItem('configName');
+    sessionStorage.removeItem('pkgType');
+    sessionStorage.removeItem('pkgSubType');
 }
 
 // ── Hierarchy modal ──
@@ -146,4 +263,6 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Logout ──
-function logout() { window.location.href = '/loginform'; }
+function logout() {
+    window.location.href = '/loginform';
+}
