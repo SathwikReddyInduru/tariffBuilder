@@ -104,14 +104,14 @@ function refreshSidebar() {
         return;
     }
 
-    list.innerHTML = '<p class="no-plans">Loading...</p>';
+    list.innerHTML = '<p class="sidebar-text">Loading...</p>';
 
     fetch(`/builder/step3/filter?types=${types}`)
         .then(res => res.json())
         .then(data => {
 
             if (!data || !data.length) {
-                list.innerHTML = '<p class="no-plans">No plans</p>';
+                list.innerHTML = '<p class="sidebar-text">No plans</p>';
                 return;
             }
 
@@ -125,7 +125,7 @@ function refreshSidebar() {
         })
         .catch(err => {
             console.error("Fetch error:", err);
-            list.innerHTML = '<p>Error loading data</p>';
+            list.innerHTML = '<p class="sidebar-text">Error loading data</p>';
         });
 }
 

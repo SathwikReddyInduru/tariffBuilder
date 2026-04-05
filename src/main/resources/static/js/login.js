@@ -30,6 +30,7 @@ function setRole() {
 }
 
 window.onload = function () {
+    sessionStorage.clear();
     setRole();
 }
 

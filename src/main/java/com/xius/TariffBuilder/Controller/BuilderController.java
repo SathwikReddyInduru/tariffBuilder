@@ -76,6 +76,7 @@ public class BuilderController {
 
 			if ("admin".equalsIgnoreCase(username) && "admin123".equals(password)) {
 				session.setAttribute("username", "admin");
+				session.setAttribute("role", "ADMIN");
 				return "redirect:/builder/admin";
 			}
 
@@ -89,21 +90,21 @@ public class BuilderController {
 		if (network == null || network.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Network Name");
 			model.addAttribute("role", "USER");
-			model.addAttribute("loginForm", loginForm); // FIX: was missing, fields cleared on error
+			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
 
 		if (username == null || username.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Username");
 			model.addAttribute("role", "USER");
-			model.addAttribute("loginForm", loginForm); // FIX: was missing
+			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
 
 		if (password == null || password.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Password");
 			model.addAttribute("role", "USER");
-			model.addAttribute("loginForm", loginForm); // FIX: was missing
+			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
 
@@ -112,11 +113,12 @@ public class BuilderController {
 		if (user == null) {
 			model.addAttribute("message", "Invalid Username / Password / Network");
 			model.addAttribute("role", "USER");
-			model.addAttribute("loginForm", loginForm); // FIX: was missing
+			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
 
 		session.setAttribute("username", user.getLoginId());
+		session.setAttribute("role", "USER");
 		session.setAttribute("network", user.getNetwork().getNetworkDisplay());
 		session.setAttribute("networkId", user.getNetwork().getNetworkId());
 
@@ -125,18 +127,26 @@ public class BuilderController {
 
 	@GetMapping("/builder/admin")
 	public String adminPage(HttpSession session, Model model) {
+
 		if (isNotLoggedIn(session))
-			return "redirect:/loginform"; // ADDED
+			return "redirect:/loginform";
+
+		if (!isAdmin(session))
+			return "redirect:/builder/step1";
+
 		setCommonData(session, model);
 		List<TariffDao> tariffList = tariffService.getTariffPackages();
 		model.addAttribute("tariff", tariffList);
+
 		return "builder/admin";
 	}
 
 	@GetMapping("/builder/pendingtariff")
 	public String adminPage_pendingtarrif(HttpSession session, Model model) {
+
 		if (isNotLoggedIn(session))
-			return "redirect:/loginform"; // ADDED
+			return "redirect:/loginform";
+
 		setCommonData(session, model);
 		model.addAttribute("tariff", tariffService.getPendingTariffs());
 		return "builder/admin";
@@ -153,16 +163,26 @@ public class BuilderController {
 
 	@GetMapping("/builder/step1")
 	public String step1(HttpSession session, Model model) {
+
 		if (isNotLoggedIn(session))
-			return "redirect:/loginform"; // ADDED
+			return "redirect:/loginform";
+
+		if (!isUser(session))
+			return "redirect:/builder/admin";
+
 		setCommonData(session, model);
 		return "builder/step1";
 	}
 
 	@GetMapping("/builder/step2")
 	public String step2(HttpSession session, Model model) {
+
 		if (isNotLoggedIn(session))
-			return "redirect:/loginform"; // ADDED
+			return "redirect:/loginform";
+
+		if (!isUser(session))
+			return "redirect:/builder/admin";
+
 		setCommonData(session, model);
 		return "builder/step2";
 	}
@@ -176,8 +196,13 @@ public class BuilderController {
 
 	@GetMapping("/builder/step3")
 	public String step3(HttpSession session, Model model) {
+
 		if (isNotLoggedIn(session))
-			return "redirect:/loginform"; // ADDED
+			return "redirect:/loginform";
+
+		if (!isUser(session))
+			return "redirect:/builder/admin";
+
 		setCommonData(session, model);
 		return "builder/step3";
 	}
@@ -191,8 +216,13 @@ public class BuilderController {
 
 	@GetMapping("/builder/step4")
 	public String step4(HttpSession session, Model model) {
+
 		if (isNotLoggedIn(session))
-			return "redirect:/loginform"; // ADDED
+			return "redirect:/loginform";
+
+		if (!isUser(session))
+			return "redirect:/builder/admin";
+
 		setCommonData(session, model);
 		return "builder/step4";
 	}
@@ -206,8 +236,13 @@ public class BuilderController {
 
 	@GetMapping("/builder/step5")
 	public String step5(HttpSession session, Model model) {
+
 		if (isNotLoggedIn(session))
-			return "redirect:/loginform"; // ADDED
+			return "redirect:/loginform";
+
+		if (!isUser(session))
+			return "redirect:/builder/admin";
+
 		setCommonData(session, model);
 		return "builder/step5";
 	}
@@ -228,6 +263,12 @@ public class BuilderController {
 		return ResponseEntity.ok(Map.of("success", true, "packageId", id));
 	}
 
+	@GetMapping("/logout")
+	public String logout(HttpSession session) {
+		session.invalidate();
+		return "redirect:/loginform";
+	}
+
 	// COMMON METHOD
 	private void setCommonData(HttpSession session, Model model) {
 		model.addAttribute("username", session.getAttribute("username"));
@@ -235,8 +276,15 @@ public class BuilderController {
 		model.addAttribute("networkId", session.getAttribute("networkId"));
 	}
 
-	// ADDED: returns true if user is not logged in
 	private boolean isNotLoggedIn(HttpSession session) {
 		return session.getAttribute("username") == null;
+	}
+
+	private boolean isAdmin(HttpSession session) {
+		return "ADMIN".equals(session.getAttribute("role"));
+	}
+
+	private boolean isUser(HttpSession session) {
+		return "USER".equals(session.getAttribute("role"));
 	}
 }

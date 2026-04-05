@@ -1,6 +1,18 @@
 function getState() {
-    return JSON.parse(sessionStorage.getItem('state') ||
-        '{"s2":null,"s3":[],"s4":[],"price":"","publicityCode":"","endDate":"","isCorporate":false}');
+
+    const defaultState = {
+        s2: [],
+        s3: [],
+        s4: [],
+        price: "",
+        publicityCode: "",
+        endDate: "",
+        isCorporate: false
+    };
+
+    const stored = sessionStorage.getItem('state');
+
+    return stored ? JSON.parse(stored) : defaultState;
 }
 
 function saveState(state) {
@@ -28,7 +40,11 @@ function checkStepAccess(targetStep) {
 
     // detect current step
     if (currentPath.includes(`step${targetStep}`)) {
-        return true; // allow reload, no alert
+        return true;
+    }
+
+    if (targetStep === 1) {
+        return true;
     }
 
     const pkgType = sessionStorage.getItem('pkgType');
@@ -214,7 +230,7 @@ async function saveConfiguration() {
             alert("Configuration Saved Successfully");
 
             clearBuilderSession();
-            // window.location.href = '/builder/step1';
+            window.location.href = '/builder/step1';
         }
         else {
             alert(result.error);
@@ -246,7 +262,7 @@ function viewTree() {
 
     document.getElementById('treeName').textContent = name;
     document.getElementById('treeMeta').textContent = `${type ? type + ' | ' : ''}${sub} | ${state.isCorporate ? 'Corporate' : 'Retail'}`;
-    document.getElementById('treeMain').textContent = `📦 Main Service Plan: ${state.s2 ? state.s2[0].name : 'None'}`;
+    document.getElementById('treeMain').textContent = `📦 Main Service Plan: ${state.s2 && state.s2[0] ? state.s2[0].name : 'None'}`;
     document.getElementById('treeDatp').textContent = `➕ DATP Components: ${(state.s3 || []).length} items`;
     document.getElementById('treeAatp').textContent = `🛒 AATP Components: ${(state.s4 || []).length} items`;
     document.getElementById('treeCharge').innerHTML = `<b>Charge: RM ${state.price || '0.00'}</b> | <b>Ends: ${state.endDate || 'Permanent'}</b>`;
@@ -264,5 +280,6 @@ document.addEventListener('keydown', e => {
 
 // ── Logout ──
 function logout() {
-    window.location.href = '/loginform';
+    sessionStorage.clear();
+    window.location.href = '/logout';
 }

@@ -100,14 +100,14 @@ function refreshSidebar() {
         return;
     }
 
-    list.innerHTML = "Loading...";
+    list.innerHTML = '<p class="sidebar-text">Loading...</p>';
 
     fetch(`/builder/step4/filter?types=${types}`)
         .then(res => res.json())
         .then(data => {
 
             if (!data || !data.length) {
-                list.innerHTML = "<p>No Plans</p>";
+                list.innerHTML = '<p class="sidebar-text">No Plans</p>';
                 return;
             }
 
@@ -121,7 +121,7 @@ function refreshSidebar() {
         })
         .catch(err => {
             console.error(err);
-            list.innerHTML = "<p>Error loading data</p>";
+            list.innerHTML = '<p class="sidebar-text">Error loading data</p>';
         });
 }
 
