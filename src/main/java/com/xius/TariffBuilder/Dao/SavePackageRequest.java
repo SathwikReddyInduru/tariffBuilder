@@ -141,11 +141,105 @@ public class SavePackageRequest {
 	@Data
 	public static class AtpItem {
 
-		private Long servicePackageId;
-		private String chargeId;
+	    private Long servicePackageId;
+	    private String chargeId;
 
-		private Integer priority;
-		private Integer effectiveStartOffset;
-		private Integer serviceDuration;
+	    private Integer priority;
+	    private Integer effectiveStartOffset;
+	    private Integer serviceDuration;
+
+	    /* NEW FIELDS */
+
+	    private String validity;
+	    private String renewal;
+	    private String midnightExpiry;
+
+	    private Double rental;
+	    private Integer maxCount;
+	    private Integer freeCycles;
+
+
+	    public Long getServicePackageId() {
+	        return servicePackageId;
+	    }
+
+	    public void setServicePackageId(Long servicePackageId) {
+	        this.servicePackageId = servicePackageId;
+	    }
+
+	    public String getChargeId() {
+	        return chargeId;
+	    }
+
+	    public void setChargeId(String chargeId) {
+	        this.chargeId = chargeId;
+	    }
+
+	    public Integer getPriority() {
+	        return priority;
+	    }
+
+	    public void setPriority(Integer priority) {
+	        this.priority = priority;
+	    }
+
+	    public Integer getServiceDuration() {
+	        return serviceDuration;
+	    }
+
+	    public void setServiceDuration(Integer serviceDuration) {
+	        this.serviceDuration = serviceDuration;
+	    }
+
+
+	    /* getters setters for new attributes */
+
+	    public String getValidity() {
+	        return validity;
+	    }
+
+	    public void setValidity(String validity) {
+	        this.validity = validity;
+	    }
+
+	    public String getRenewal() {
+	        return renewal;
+	    }
+
+	    public void setRenewal(String renewal) {
+	        this.renewal = renewal;
+	    }
+
+	    public String getMidnightExpiry() {
+	        return midnightExpiry;
+	    }
+
+	    public void setMidnightExpiry(String midnightExpiry) {
+	        this.midnightExpiry = midnightExpiry;
+	    }
+
+	    public Double getRental() {
+	        return rental;
+	    }
+
+	    public void setRental(Double rental) {
+	        this.rental = rental;
+	    }
+
+	    public Integer getMaxCount() {
+	        return maxCount;
+	    }
+
+	    public void setMaxCount(Integer maxCount) {
+	        this.maxCount = maxCount;
+	    }
+
+	    public Integer getFreeCycles() {
+	        return freeCycles;
+	    }
+
+	    public void setFreeCycles(Integer freeCycles) {
+	        this.freeCycles = freeCycles;
+	    }
 	}
 }

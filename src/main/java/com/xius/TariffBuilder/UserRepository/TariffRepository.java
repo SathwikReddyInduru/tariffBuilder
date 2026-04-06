@@ -12,8 +12,7 @@ import com.xius.TariffBuilder.Entity.TariffEntity;
 public interface TariffRepository extends JpaRepository<TariffEntity, Long> {
 
 	@Query(value = "SELECT NETWORK_ID, TARIFF_PACKAGE_NAME, TARIFF_PACKAGE_ID, STATUS "
-			+ "FROM CS_TARIFF_PACK_AP_REG_STATUS "
-			+ "WHERE NETWORK_ID = 16", nativeQuery = true)
+			+ "FROM CS_TARIFF_PACK_AP_REG_STATUS ", nativeQuery = true)
 	List<Object[]> getTariffPackagesStatic();
 
 	List<TariffEntity> findByStatusIsNull();

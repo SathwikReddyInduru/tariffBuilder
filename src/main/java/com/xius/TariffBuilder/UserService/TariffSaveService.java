@@ -10,10 +10,13 @@ import com.xius.TariffBuilder.Entity.PeriodicChargeInfo;
 import com.xius.TariffBuilder.Entity.TariffPackage;
 import com.xius.TariffBuilder.Entity.TariffPublicityMap;
 import com.xius.TariffBuilder.Entity.TariffServicePackMap;
+import com.xius.TariffBuilder.Entity.TariffStatus;
+
 import com.xius.TariffBuilder.UserRepository.PeriodicChargeRepository;
 import com.xius.TariffBuilder.UserRepository.TariffPackageRepository;
 import com.xius.TariffBuilder.UserRepository.TariffPublicityMapRepository;
 import com.xius.TariffBuilder.UserRepository.TariffServicePackMapRepository;
+import com.xius.TariffBuilder.UserRepository.TariffStatusRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class TariffSaveService {
         private final TariffPublicityMapRepository publicityRepo;
         private final TariffServicePackMapRepository serviceRepo;
         private final PeriodicChargeRepository periodicRepo;
+        private final TariffStatusRepository statusRepo;
 
         private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
@@ -70,6 +74,24 @@ public class TariffSaveService {
                 TariffPackage saved = packageRepo.save(pkg);
 
                 Long tariffPackageId = saved.getTariffPackageId();
+
+                /*
+                 * NEW INSERT
+                 * CS_TARIFF_PACK_AP_REG_STATUS
+                 */
+
+                TariffStatus status = new TariffStatus();
+
+                status.setNetworkId(networkId);
+
+                status.setTariffPackageId(tariffPackageId);
+
+                status.setTariffPackageName(
+                                req.getTariffPackageDesc().toUpperCase());
+
+                status.setStatus("P");
+
+                statusRepo.save(status);
 
                 /* 2️⃣ CS_RAT_PERIODIC_CHARGE_INFO */
 
