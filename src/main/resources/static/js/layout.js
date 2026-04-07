@@ -1,3 +1,113 @@
+// ═══════════════════════════════════════════════════════
+//  PRIVILEGE-BASED MODULE VISIBILITY
+//
+//  Privilege IDs (to be set when auth API is wired up):
+//    1  →  BUILDER only
+//    2  →  APPROVER only
+//    3  →  BUILDER + APPROVER
+//
+//  Currently defaults to showing both nodes for dev/demo.
+//  Replace the constant below (or fetch it from session/API)
+//  once the privilege endpoint is ready.
+// ═══════════════════════════════════════════════════════
+
+const PRIVILEGE_ID = parseInt(sessionStorage.getItem('privilegeId') || '3', 10);
+
+// Maps privilege id → which main-rail nodes are visible
+const PRIVILEGE_MAP = {
+    1: ['builder'],
+    2: ['approver'],
+    3: ['builder', 'approver'],
+};
+
+// ── Apply privilege on load ──
+window.addEventListener('DOMContentLoaded', () => {
+
+    applyPrivilege();
+    restoreActiveModule();
+    restoreConfigName();
+});
+
+function applyPrivilege() {
+
+    const allowed = PRIVILEGE_MAP[PRIVILEGE_ID] || ['builder'];
+
+    const builderNode = document.getElementById('mn-builder');
+    const approverNode = document.getElementById('mn-approver');
+
+    if (!allowed.includes('builder') && builderNode) builderNode.classList.add('hidden-node');
+    if (!allowed.includes('approver') && approverNode) approverNode.classList.add('hidden-node');
+
+    // If only one module is allowed, auto-select it and hide main rail
+    // (single-privilege users see no wasted chrome)
+    if (allowed.length === 1) {
+        document.getElementById('mainRail').style.width = '0';
+        document.getElementById('mainRail').style.overflow = 'hidden';
+        document.getElementById('mainRail').style.padding = '0';
+    }
+}
+
+// ── Restore active module based on current URL ──
+function restoreActiveModule() {
+
+    const path = window.location.pathname;
+
+    if (path.startsWith('/builder/admin')) {
+        setModuleUI('approver');
+    } else {
+        setModuleUI('builder');
+    }
+}
+
+// ── Activate module (called from main-rail anchor click) ──
+function activateModule(module, el) {
+
+    const allowed = PRIVILEGE_MAP[PRIVILEGE_ID] || ['builder'];
+    if (!allowed.includes(module)) {
+        return false; // block navigation if not privileged
+    }
+
+    setModuleUI(module);
+
+    // Allow the anchor's href to fire
+    return true;
+}
+
+function setModuleUI(module) {
+
+    const stepRail = document.getElementById('stepRail');
+    const sidebar = document.getElementById('sidebar');
+    const builderNode = document.getElementById('mn-builder');
+    const approverNode = document.getElementById('mn-approver');
+
+    // ── Active node highlight ──
+    if (builderNode) builderNode.classList.toggle('active', module === 'builder');
+    if (approverNode) approverNode.classList.toggle('active', module === 'approver');
+
+    if (module === 'builder') {
+        // Show step rail + sidebar
+        if (stepRail) stepRail.classList.remove('collapsed');
+        if (sidebar) sidebar.classList.remove('collapsed');
+    } else {
+        // Approver — collapse step rail + sidebar (they're irrelevant)
+        if (stepRail) stepRail.classList.add('collapsed');
+        if (sidebar) sidebar.classList.add('collapsed');
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+//  PRIVILEGE SETTER  (call this from your auth callback)
+//  e.g.  setPrivilege(1)  after login API returns priv id
+// ═══════════════════════════════════════════════════════
+function setPrivilege(id) {
+    sessionStorage.setItem('privilegeId', String(id));
+    // reload so applyPrivilege() runs fresh
+    window.location.reload();
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATE HELPERS
+// ═══════════════════════════════════════════════════════
 function getState() {
 
     const defaultState = {
@@ -11,7 +121,6 @@ function getState() {
     };
 
     const stored = sessionStorage.getItem('state');
-
     return stored ? JSON.parse(stored) : defaultState;
 }
 
@@ -19,48 +128,39 @@ function saveState(state) {
     sessionStorage.setItem('state', JSON.stringify(state));
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+// ── Restore config name across steps ──
+function restoreConfigName() {
+
     const input = document.getElementById('configName');
     if (!input) return;
 
-    // Restore saved name
     const savedName = sessionStorage.getItem('configName') || '';
     input.value = savedName;
 
-    // Save on every keystroke so navigation never loses it
     input.addEventListener('input', () => {
         sessionStorage.setItem('configName', input.value);
     });
-});
+}
 
-// ── Step access guard ──
+// ═══════════════════════════════════════════════════════
+//  STEP ACCESS GUARD
+// ═══════════════════════════════════════════════════════
 function checkStepAccess(targetStep) {
 
     const currentPath = window.location.pathname;
 
-    // detect current step
-    if (currentPath.includes(`step${targetStep}`)) {
-        return true;
-    }
-
-    if (targetStep === 1) {
-        return true;
-    }
+    if (currentPath.includes(`step${targetStep}`)) return true;
+    if (targetStep === 1) return true;
 
     const pkgType = sessionStorage.getItem('pkgType');
     const state = JSON.parse(sessionStorage.getItem('state') || '{}');
 
-    // ---------- STEP 1 ----------
     if (!pkgType) {
         alert("Please select PREPAID or POSTPAID in Step 1");
         return false;
     }
 
-    // ---------- STEP 2 ----------
-    const hasStep2Data =
-        state.s2 &&
-        Array.isArray(state.s2) &&
-        state.s2.length > 0;
+    const hasStep2Data = state.s2 && Array.isArray(state.s2) && state.s2.length > 0;
 
     if (targetStep > 2 && !hasStep2Data) {
         alert("Please select Service Plan in Step 2");
@@ -70,256 +170,84 @@ function checkStepAccess(targetStep) {
     return true;
 }
 
-// ── Module switcher ──
-function switchModule(m) {
-    document.getElementById('m-pkg').classList.toggle('active', m === 'pkg');
-    document.getElementById('m-reload').classList.toggle('active', m === 'reload');
-
-    const isPkg = m === 'pkg';
-    document.getElementById('stepRail').style.display = isPkg ? 'flex' : 'none';
-    document.getElementById('sidebar').style.display = isPkg ? 'flex' : 'none';
-    document.getElementById('footerActions').style.display = isPkg ? 'flex' : 'none';
-
-    const stepStage = document.querySelector('.stage:not(#reloadStage)');
-    if (stepStage) stepStage.classList.toggle('hidden', !isPkg);
-    document.getElementById('reloadStage').classList.toggle('hidden', isPkg);
-}
-
-// ── Save eReload ──
-async function saveReload() {
-    const payload = {
-        rechargeId: document.getElementById('rechargeId').value,
-        rechargeType: document.getElementById('rechargeType').value,
-        mrp: document.getElementById('mrp').value,
-        airTime: document.getElementById('airTime').value,
-        validityDays: document.getElementById('validityDays').value,
-        gracePeriod1: document.getElementById('gracePeriod1').value,
-        gracePeriod2: document.getElementById('gracePeriod2').value,
-    };
-    if (!payload.rechargeId) { alert('Enter Recharge ID'); return; }
-    try {
-        const res = await fetch('/api/v1/saveReload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (res.ok) alert('eReload Configuration Saved.');
-    } catch (e) { alert('Backend error.'); }
-}
-
-//Logout
+// ═══════════════════════════════════════════════════════
+//  USER MENU
+// ═══════════════════════════════════════════════════════
 function toggleUserMenu() {
     const dropdown = document.getElementById("userDropdown");
     dropdown.classList.toggle("active");
 }
 
-// close when clicking outside
 document.addEventListener("click", function (e) {
     const menu = document.querySelector(".user-menu");
-    if (!menu.contains(e.target)) {
-        document.getElementById("userDropdown").classList.remove("active");
+    if (menu && !menu.contains(e.target)) {
+        const dd = document.getElementById("userDropdown");
+        if (dd) dd.classList.remove("active");
     }
 });
 
-// ── Save package config ──
+// ═══════════════════════════════════════════════════════
+//  SAVE PACKAGE CONFIGURATION
+// ═══════════════════════════════════════════════════════
 async function saveConfiguration() {
-    const configName =
-        document.getElementById("configName").value;
+
+    const configName = document.getElementById("configName").value;
 
     if (!configName) {
         alert("Enter Configuration Name");
         return;
     }
 
-    const state =
-        JSON.parse(sessionStorage.getItem("state"));
+    const state = JSON.parse(sessionStorage.getItem("state"));
 
-    if (!state?.s2?.length) {
-        alert("Step 2 required");
-        return;
-    }
+    if (!state?.s2?.length) { alert("Step 2 required"); return; }
+    if (!state?.s3?.length) { alert("Step 3 required"); return; }
 
-    if (!state?.s3?.length) {
-        alert("Step 3 required");
-        return;
-    }
-
-
-    /* Step3 name → chargeId */
-    const step3Name =
-        state.s3[0].name
-            .replace(/\s+/g, '_')
-            .toUpperCase();
-
-    const chargeId =
-        configName + "_PR";
-
+    const step3Name = state.s3[0].name.replace(/\s+/g, '_').toUpperCase();
+    const chargeId = step3Name + "_PR";
 
     function formatDateToMMDDYYYY(dateStr) {
-        if (!dateStr)
-            return "12/31/2030";
-
-        const [year, month, day] =
-            dateStr.split("-");
-
+        if (!dateStr) return "12/31/2030";
+        const [year, month, day] = dateStr.split("-");
         return `${month}/${day}/${year}`;
     }
 
-
-    const payload =
-    {
+    const payload = {
         networkId: 16,
-
         username: "USER1",
-
-        packageType:
-            sessionStorage.getItem("pkgType"),
-
-        tariffPackCategory:
-            sessionStorage.getItem("pkgSubType") || "GENERAL",
-
-        tariffPackageDesc:
-            configName,
-
-        endDate:
-            formatDateToMMDDYYYY(state.endDate),
-
-        publicityId:
-            state.publicityCode || "DEFAULT_PUB",
-
-        chargeId:
-            chargeId,
-
-        isCorporateYn:
-            state.isCorporate ? "Y" : "N",
-
-        tariffPlanId:
-            Number(state.s2[0].id),
-
-
-        /* STEP 3 - mandatory */
-        defaultAtps:
-            state.s3.map(item => ({
-
-                servicePackageId:
-                    Number(item.id),
-
-                chargeId:
-                    chargeId,
-
-                priority:
-                    item.priority ?? 1,
-
-                serviceDuration:
-                    item.serviceDuration ?? 30,
-
-                effectiveStartOffset:
-                    item.effectiveStartOffset ?? 0,
-
-                validity:
-                    item.validity ?? null,
-
-                renewal:
-                    item.renewal ?? null,
-
-                midnightExpiry:
-                    item.midnightExpiry ?? null,
-
-                rental:
-                    item.rental ?? null,
-
-                maxCount:
-                    item.maxCount ?? null,
-
-                freeCycles:
-                    item.freeCycles ?? null
-            })),
-
-
-
-        /* STEP 4 - optional */
-        allowedAtps:
-            state?.s4?.length
-                ? state.s4.map(item => ({
-
-                    servicePackageId:
-                        Number(item.id),
-
-                    chargeId:
-                        chargeId,
-
-                    priority:
-                        item.priority ?? null,
-
-                    serviceDuration:
-                        item.serviceDuration ?? null,
-
-                    effectiveStartOffset:
-                        item.effectiveStartOffset ?? null,
-
-                    validity:
-                        item.validity ?? null,
-
-                    renewal:
-                        item.renewal ?? null,
-
-                    midnightExpiry:
-                        item.midnightExpiry ?? null,
-
-                    rental:
-                        item.rental ?? null,
-
-                    maxCount:
-                        item.maxCount ?? null,
-
-                    freeCycles:
-                        item.freeCycles ?? null
-                }))
-                : []
+        packageType: sessionStorage.getItem("pkgType"),
+        tariffPackCategory: sessionStorage.getItem("pkgSubType") || "GENERAL",
+        tariffPackageDesc: configName,
+        endDate: formatDateToMMDDYYYY(state.endDate) || "12/31/2030",
+        publicityId: state.publicityCode || "DEFAULT_PUB",
+        chargeId: chargeId,
+        isCorporateYn: state.isCorporate ? "Y" : "N",
+        tariffPlanId: Number(state.s2[0].id),
+        defaultAtps: state.s3.map(item => ({ servicePackageId: Number(item.id), chargeId })),
+        allowedAtps: state.s4.map(item => ({ servicePackageId: Number(item.id), chargeId }))
     };
-
 
     console.log("REQUEST", payload);
 
-
     try {
-        const response =
-            await fetch("/saveConfig",
-                {
-                    method: "POST",
+        const response = await fetch("/saveConfig", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
 
-                    headers:
-                    {
-                        "Content-Type": "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(payload)
-                });
-
-
-        const result =
-            await response.json();
-
+        const result = await response.json();
         console.log("RESPONSE", result);
-
 
         if (response.ok) {
             alert("Configuration Saved Successfully");
-
             clearBuilderSession();
-
-            window.location.href =
-                "/builder/step1";
+            window.location.href = '/builder/step1';
+        } else {
+            alert(result.error);
         }
-        else {
-            alert("Tp already existed");
-        }
-
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
-
         alert("Server error");
     }
 }
@@ -334,7 +262,9 @@ function clearBuilderSession() {
     sessionStorage.removeItem('pkgSubType');
 }
 
-// ── Hierarchy modal ──
+// ═══════════════════════════════════════════════════════
+//  HIERARCHY MODAL
+// ═══════════════════════════════════════════════════════
 function viewTree() {
     const state = getState();
     const name = document.getElementById('configName').value || 'Unnamed Package';
@@ -359,8 +289,34 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeTree();
 });
 
-// ── Logout ──
+// ═══════════════════════════════════════════════════════
+//  LOGOUT
+// ═══════════════════════════════════════════════════════
 function logout() {
     sessionStorage.clear();
     window.location.href = '/logout';
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN ACTIONS (Approve/Reject) in Approver Module
+// ═══════════════════════════════════════════════════════
+function handleAction(tariffPackageId, status) {
+    const message = status === 'A' ? 'Approved' : 'Rejected';
+
+    fetch('/admin/updateStatus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            tariffPackageId: tariffPackageId,
+            status: status
+        })
+    })
+        .then(res => {
+            if (res.ok) {
+                alert(message);
+                document.getElementById('card-' + tariffPackageId).remove();
+            } else {
+                alert('Error!');
+            }
+        });
 }

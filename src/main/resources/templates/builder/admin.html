@@ -1,289 +1,59 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{builder/layout :: layout(~{::title}, ~{::section}, 0)}">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Control Center</title>
-
-    <!-- SAME FONT AS LAYOUT -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- MATERIAL ICONS -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f8fafc;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* NAVBAR (same feel as layout) */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .navbar img {
-            margin-left: 20px;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-icon {
-            cursor: pointer;
-            font-size: 22px;
-            margin-right: 20px;
-        }
-
-        .user-dropdown {
-            position: absolute;
-            top: 40px;
-            right: 0;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 10px;
-            width: 180px;
-            display: none;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .user-name {
-            font-weight: 600;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 8px;
-        }
-
-        .logout-option {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            color: #dc2626;
-            padding: 8px;
-        }
-
-        .logout-option:hover {
-            background: #f3f4f6;
-            border-radius: 6px;
-        }
-
-        /* HEADER */
-        .header {
-            text-align: center;
-            padding: 20px;
-            font-size: 20px;
-            font-weight: 700;
-            color: #6366f1;
-        }
-
-        /* YOUR EXISTING ADMIN UI */
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .page-wrapper {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .page-title {
-            text-align: center;
-            font-size: 26px;
-            font-weight: 700;
-            color: #6366f1;
-            margin-bottom: 20px;
-        }
-
-        .draft-list {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .draft-card {
-            background: #fff;
-            padding: 25px;
-            border-radius: 20px;
-            border: 1px solid #e4e7ec;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .draft-name {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-hierarchy {
-            background: #fff;
-            border: 1px solid #d0d5dd;
-        }
-
-        .btn-approve {
-            background: #12b76a;
-            color: #fff;
-        }
-
-        .btn-reject {
-            background: #f04438;
-            color: #fff;
-        }
-
-        /* FOOTER */
-        .footer {
-            width: 100%;
-            background: #f3f3f3;
-            padding: 12px 0;
-            /* instead of fixed height */
-        }
-
-        .footer p {
-            margin: 0;
-            color: #64748b;
-            font-size: 12px;
-            text-align: center;
-        }
-    </style>
+    <title>Admin</title>
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <img th:src="@{/images/logo.png}" alt="Xius Logo" style="height:50px;">
+<section style="flex:1; width:100%;">
 
-        <div class="user-menu">
-            <div class="user-icon" onclick="toggleUserMenu()">👤</div>
-
-            <div class="user-dropdown" id="userDropdown">
-                <div class="user-name" th:text="${username != null ? username : 'Admin'}">Admin</div>
-
-                <div class="logout-option" onclick="logout()">
-                    <span class="material-icons" style="font-size:18px; margin-right:6px;">logout</span>
-                    Logout
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- HEADER
-<div class="header">
-    Admin Dashboard | 
-    <span th:text="${username != null ? username : 'Admin'}">Admin</span>
-</div> -->
-
-    <!-- YOUR CONTENT (UNCHANGED) -->
     <div class="main-content">
         <div class="page-wrapper">
-            <h1 class="page-title">Admin Control Center</h1>
 
             <div class="draft-list">
 
-                <!-- Pending Cards -->
-                <div class="draft-card" th:each="t : ${tariff}" th:id="'card-' + ${t.tariffPackageId}"
-                    th:if="${t.status} == 'P'">
+                <div class="draft-card"
+                     th:each="t : ${tariff}"
+                     th:id="'card-' + ${t.tariffPackageId}"
+                     th:if="${t.status} == 'P'">
 
-                    <span class="draft-name" th:text="${t.tariffPackageName}">
-                        PACKAGE_NAME
+                    <span class="draft-name"
+                          th:text="${t.tariffPackageName}">
                     </span>
 
                     <div class="actions">
-                        <a class="btn btn-hierarchy" th:href="@{/admin/hierarchy/{id}(id=${t.networkId})}">
+                        <a class="btn btn-hierarchy"
+                           th:href="@{/admin/hierarchy/{id}(id=${t.networkId})}">
                             View Hierarchy
                         </a>
 
                         <button class="btn btn-approve"
-                            th:onclick="'handleAction(' + ${t.tariffPackageId} + ', \'A\')'">
+                                th:onclick="'handleAction(' + ${t.tariffPackageId} + ', \'A\')'">
                             Approve
                         </button>
 
-                        <button class="btn btn-reject" th:onclick="'handleAction(' + ${t.tariffPackageId} + ', \'R\')'">
+                        <button class="btn btn-reject"
+                                th:onclick="'handleAction(' + ${t.tariffPackageId} + ', \'R\')'">
                             Reject
                         </button>
                     </div>
+
                 </div>
 
-                <div th:if="${#lists.isEmpty(tariff.?[status == 'P'])}" style="text-align:center; margin-top:20px;">
+                <div th:if="${#lists.isEmpty(tariff.?[status == 'P'])}"
+                     style="text-align:center; margin-top:20px;">
                     <p>No pending tariffs</p>
                 </div>
 
             </div>
+
         </div>
     </div>
-    <!-- FOOTER -->
-    <footer class="footer">
-        <p>© 2026 XIUS</p>
-    </footer>
 
-    <script>
-        function toggleUserMenu() {
-            const d = document.getElementById("userDropdown");
-            d.style.display = d.style.display === "block" ? "none" : "block";
-        }
+</section>
 
-        document.addEventListener("click", function (e) {
-            const menu = document.querySelector(".user-menu");
-            if (!menu.contains(e.target)) {
-                document.getElementById("userDropdown").style.display = "none";
-            }
-        });
-
-        function logout() {
-            window.location.href = "/loginform";
-        }
-
-        function handleAction(tariffPackageId, status) {
-            const message = status === 'A' ? 'Approved' : 'Rejected';
-
-            fetch('/admin/updateStatus', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tariffPackageId: tariffPackageId, // clean & clear
-                    status: status
-                })
-            })
-                .then(res => {
-                    if (res.ok) {
-                        alert(message);
-                        document.getElementById('card-' + tariffPackageId).remove();
-                    } else {
-                        alert('Error!');
-                    }
-                });
-        }
-    </script>
 </body>
-
 </html>

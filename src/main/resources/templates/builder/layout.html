@@ -11,14 +11,12 @@
 
 <body>
 
-    <input type="hidden" id="username" th:value="${session.networkId}">
     <nav class="navbar">
         <img th:src="@{/images/logo.png}" alt="Xius Logo" style="height:50px; vertical-align:middle;">
         <div class="user-menu">
             <div class="user-icon" onclick="toggleUserMenu()">
                 <span>👤</span>
             </div>
-
             <div class="user-dropdown" id="userDropdown">
                 <div class="user-name" th:text="${username != null ? username : 'User'}">User</div>
                 <div class="logout-option" onclick="logout()">
@@ -31,9 +29,40 @@
 
     <div class="app-container">
 
-        <!-- STEP RAIL -->
+        <!-- ═══════════════════════════════════════════════════════════
+             MAIN RAIL — app-level module switcher
+             Nodes: TARIFF BUILDER | TARIFF APPROVER
+             Visibility driven by privilege id (set via JS later)
+        ════════════════════════════════════════════════════════════ -->
+        <nav class="main-rail" id="mainRail">
+
+            <!-- Builder node -->
+            <a href="/builder/step1"
+               class="main-node"
+               id="mn-builder"
+               title="Tariff Builder"
+               onclick="return activateModule('builder', this)">
+                <span class="main-node-icon material-icons">build_circle</span>
+                <span class="main-node-label">BUILDER</span>
+            </a>
+
+            <!-- Approver node — hidden until privilege allows -->
+            <a href="/builder/admin"
+               class="main-node"
+               id="mn-approver"
+               title="Tariff Approver"
+               onclick="return activateModule('approver', this)">
+                <span class="main-node-icon material-icons">task_alt</span>
+                <span class="main-node-label">APPROVER</span>
+            </a>
+
+        </nav>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             STEP RAIL — visible only when Builder module is active
+        ════════════════════════════════════════════════════════════ -->
         <nav class="step-rail" id="stepRail">
-            <a href="/builder/step1" class="step-node" onclick="return checkStepAccess(1)" 
+            <a href="/builder/step1" class="step-node" onclick="return checkStepAccess(1)"
                 th:classappend="${activeStep == 1} ? ' active'">
                 <b>STEP 1</b><span>PKG TYPE</span>
             </a>
@@ -72,61 +101,13 @@
                     <div class="logo">
                         Builder | <span th:text="${username != null ? username : 'user'}">user</span>
                     </div>
-
-                    <div class="module-nav">
-                        <div class="mod-btn active" id="m-pkg" onclick="switchModule('pkg')">PACKAGE BUILDER</div>
-                        <div class="mod-btn" id="m-reload" onclick="switchModule('reload')">ERELOAD</div>
-                    </div>
                     <input type="text" placeholder="Name..." class="config-name" id="configName">
                 </div>
             </header>
 
             <th:block th:replace="${stageFrag}"></th:block>
 
-            <!-- eReload stage -->
-            <section class="stage hidden" id="reloadStage">
-                <div class="dropped-card" style="max-width:600px; margin:0 auto; text-align:left;">
-                    <h2 style="color:var(--primary); margin-bottom:20px;">eReload Configuration</h2>
-                    <div class="card-grid">
-                        <div class="card-field">
-                            <label>Recharge ID</label>
-                            <input type="text" id="rechargeId">
-                        </div>
-                        <div class="card-field">
-                            <label>Recharge Type</label>
-                            <select id="rechargeType">
-                                <option>Single</option>
-                                <option>Range</option>
-                            </select>
-                        </div>
-                        <div class="card-field">
-                            <label>MRP / Cost (RM)</label>
-                            <input type="number" id="mrp">
-                        </div>
-                        <div class="card-field">
-                            <label>AirTime Value</label>
-                            <input type="number" id="airTime">
-                        </div>
-                        <div class="card-field">
-                            <label>Validity (Days)</label>
-                            <input type="number" id="validityDays">
-                        </div>
-                        <div class="card-field">
-                            <label>Grace Period 1 (Days)</label>
-                            <input type="number" id="gracePeriod1">
-                        </div>
-                        <div class="card-field">
-                            <label>Grace Period 2 (Days)</label>
-                            <input type="number" id="gracePeriod2">
-                        </div>
-                    </div>
-                    <button class="save-btn" style="width:100%; margin-top:30px;" onclick="saveReload()">
-                        Save eReload Configuration
-                    </button>
-                </div>
-            </section>
-
-            <!-- FOOTER -->
+            <!-- FOOTER ACTIONS -->
             <div class="config-panel" id="footerActions">
                 <button class="btn-secondary" onclick="viewTree()">Hierarchy</button>
                 <button class="btn-primary" onclick="saveConfiguration()"
@@ -136,6 +117,7 @@
         </main>
     </div>
 
+    <!-- HIERARCHY MODAL -->
     <div id="treeModal" onclick="closeTree()">
         <div class="tree-card" onclick="event.stopPropagation()">
             <h2>Configuration Summary</h2>
