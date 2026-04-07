@@ -123,15 +123,16 @@ document.addEventListener("click", function (e) {
 
 // ── Save package config ──
 async function saveConfiguration() {
-
-    const configName = document.getElementById("configName").value;
+    const configName =
+        document.getElementById("configName").value;
 
     if (!configName) {
         alert("Enter Configuration Name");
         return;
     }
 
-    const state = JSON.parse(sessionStorage.getItem("state"));
+    const state =
+        JSON.parse(sessionStorage.getItem("state"));
 
     if (!state?.s2?.length) {
         alert("Step 2 required");
@@ -143,19 +144,27 @@ async function saveConfiguration() {
         return;
     }
 
-    /* Step 3 name → chargeId */
-    const step3Name = state.s3[0].name
-        .replace(/\s+/g, '_')
-        .toUpperCase();
 
-    const chargeId = step3Name + "_PR";
+    /* Step3 name → chargeId */
+    const step3Name =
+        state.s3[0].name
+            .replace(/\s+/g, '_')
+            .toUpperCase();
+
+    const chargeId =
+        configName + "_PR";
+
 
     function formatDateToMMDDYYYY(dateStr) {
-        if (!dateStr) return "12/31/2030"; // default
+        if (!dateStr)
+            return "12/31/2030";
 
-        const [year, month, day] = dateStr.split("-");
+        const [year, month, day] =
+            dateStr.split("-");
+
         return `${month}/${day}/${year}`;
     }
+
 
     const payload =
     {
@@ -172,8 +181,8 @@ async function saveConfiguration() {
         tariffPackageDesc:
             configName,
 
-        endDate: formatDateToMMDDYYYY(state.endDate) ||
-            "12/31/2030",
+        endDate:
+            formatDateToMMDDYYYY(state.endDate),
 
         publicityId:
             state.publicityCode || "DEFAULT_PUB",
@@ -187,6 +196,8 @@ async function saveConfiguration() {
         tariffPlanId:
             Number(state.s2[0].id),
 
+
+        /* STEP 3 - mandatory */
         defaultAtps:
             state.s3.map(item => ({
 
@@ -194,47 +205,117 @@ async function saveConfiguration() {
                     Number(item.id),
 
                 chargeId:
-                    chargeId
+                    chargeId,
+
+                priority:
+                    item.priority ?? 1,
+
+                serviceDuration:
+                    item.serviceDuration ?? 30,
+
+                effectiveStartOffset:
+                    item.effectiveStartOffset ?? 0,
+
+                validity:
+                    item.validity ?? null,
+
+                renewal:
+                    item.renewal ?? null,
+
+                midnightExpiry:
+                    item.midnightExpiry ?? null,
+
+                rental:
+                    item.rental ?? null,
+
+                maxCount:
+                    item.maxCount ?? null,
+
+                freeCycles:
+                    item.freeCycles ?? null
             })),
 
+
+
+        /* STEP 4 - optional */
         allowedAtps:
-            state.s4.map(item => ({
+            state?.s4?.length
+                ? state.s4.map(item => ({
 
-                servicePackageId:
-                    Number(item.id),
+                    servicePackageId:
+                        Number(item.id),
 
-                chargeId:
-                    chargeId
-            }))
+                    chargeId:
+                        chargeId,
+
+                    priority:
+                        item.priority ?? null,
+
+                    serviceDuration:
+                        item.serviceDuration ?? null,
+
+                    effectiveStartOffset:
+                        item.effectiveStartOffset ?? null,
+
+                    validity:
+                        item.validity ?? null,
+
+                    renewal:
+                        item.renewal ?? null,
+
+                    midnightExpiry:
+                        item.midnightExpiry ?? null,
+
+                    rental:
+                        item.rental ?? null,
+
+                    maxCount:
+                        item.maxCount ?? null,
+
+                    freeCycles:
+                        item.freeCycles ?? null
+                }))
+                : []
     };
+
 
     console.log("REQUEST", payload);
 
+
     try {
         const response =
-            await fetch("/saveConfig", {
-                method: "POST",
+            await fetch("/saveConfig",
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers:
+                    {
+                        "Content-Type": "application/json"
+                    },
 
-                body: JSON.stringify(payload)
-            });
+                    body:
+                        JSON.stringify(payload)
+                });
 
-        const result = await response.json();
+
+        const result =
+            await response.json();
 
         console.log("RESPONSE", result);
+
 
         if (response.ok) {
             alert("Configuration Saved Successfully");
 
             clearBuilderSession();
-            window.location.href = '/builder/step1';
+
+            window.location.href =
+                "/builder/step1";
         }
         else {
-            alert(result.error);
+            alert("Tp already existed");
         }
+
     }
     catch (error) {
         console.error(error);

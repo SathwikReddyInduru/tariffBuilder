@@ -45,7 +45,7 @@ function toggleSvc(service, el) {
 
     if (selectedSvcs.length === 0) {
         clearCenter();
-    } 
+    }
     // else {
     //     // optional: validate if current center plan still valid
     //     validateCenterPlan();

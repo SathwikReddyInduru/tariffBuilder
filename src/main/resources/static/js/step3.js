@@ -44,9 +44,10 @@ function toggleSvc(service, el) {
 
     if (selectedSvcs.length === 0) {
         clearCenter();
-    } else {
-        validateCenterPlans();
     }
+    // else {
+    //     validateCenterPlans();
+    // }
 
     refreshSidebar();
 }

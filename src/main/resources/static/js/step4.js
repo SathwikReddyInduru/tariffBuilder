@@ -44,9 +44,10 @@ function toggleSvc(service, el) {
 
     if (selectedSvcs.length === 0) {
         clearCenter();
-    } else {
-        validateCenterPlans();
     }
+    // else {
+    //     validateCenterPlans();
+    // }
 
     refreshSidebar();
 }
@@ -130,6 +131,12 @@ function addToCenter(id, name) {
 
     const state = getState();
     if (!state.s4) state.s4 = [];
+
+    if (state.s3 && state.s3.find(item => item.id === id)) {
+        alert(`"${name}" is already selected in DATP`);
+        return;
+    }
+
     if (state.s4.find(i => i.id === id)) return;
 
     const item = {
