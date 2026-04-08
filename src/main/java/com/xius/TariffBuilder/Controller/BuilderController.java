@@ -52,58 +52,25 @@ public class BuilderController {
 			Model model,
 			HttpSession session) {
 
-		String role = loginForm.getRole();
 		String username = loginForm.getUsername();
 		String password = loginForm.getPassword();
 		String network = loginForm.getNetworkName();
 
-		// ================= ADMIN LOGIN =================
-		if ("ADMIN".equalsIgnoreCase(role)) {
-
-			if (username == null || username.trim().isEmpty()) {
-				model.addAttribute("message", "Please enter Admin Username");
-				model.addAttribute("role", "ADMIN");
-				model.addAttribute("loginForm", loginForm);
-				return "login";
-			}
-
-			if (password == null || password.trim().isEmpty()) {
-				model.addAttribute("message", "Please enter Admin Password");
-				model.addAttribute("role", "ADMIN");
-				model.addAttribute("loginForm", loginForm);
-				return "login";
-			}
-
-			if ("admin".equalsIgnoreCase(username) && "admin123".equals(password)) {
-				session.setAttribute("username", "admin");
-				session.setAttribute("role", "ADMIN");
-				return "redirect:/builder/admin";
-			}
-
-			model.addAttribute("message", "Invalid Admin Credentials");
-			model.addAttribute("role", "ADMIN");
-			model.addAttribute("loginForm", loginForm);
-			return "login";
-		}
-
 		// ================= USER LOGIN =================
 		if (network == null || network.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Network Name");
-			model.addAttribute("role", "USER");
 			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
 
 		if (username == null || username.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Username");
-			model.addAttribute("role", "USER");
 			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
 
 		if (password == null || password.trim().isEmpty()) {
 			model.addAttribute("message", "Please enter Password");
-			model.addAttribute("role", "USER");
 			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
@@ -112,13 +79,11 @@ public class BuilderController {
 
 		if (user == null) {
 			model.addAttribute("message", "Invalid Username / Password / Network");
-			model.addAttribute("role", "USER");
 			model.addAttribute("loginForm", loginForm);
 			return "login";
 		}
 
 		session.setAttribute("username", user.getLoginId());
-		session.setAttribute("role", "USER");
 		session.setAttribute("network", user.getNetwork().getNetworkDisplay());
 		session.setAttribute("networkId", user.getNetwork().getNetworkId());
 
@@ -130,9 +95,6 @@ public class BuilderController {
 
 		if (isNotLoggedIn(session))
 			return "redirect:/loginform";
-
-		if (!isAdmin(session))
-			return "redirect:/builder/step1";
 
 		setCommonData(session, model);
 		List<TariffDao> tariffList = tariffService.getTariffPackages();
@@ -167,9 +129,6 @@ public class BuilderController {
 		if (isNotLoggedIn(session))
 			return "redirect:/loginform";
 
-		if (!isUser(session))
-			return "redirect:/builder/admin";
-
 		setCommonData(session, model);
 		return "builder/step1";
 	}
@@ -179,9 +138,6 @@ public class BuilderController {
 
 		if (isNotLoggedIn(session))
 			return "redirect:/loginform";
-
-		if (!isUser(session))
-			return "redirect:/builder/admin";
 
 		setCommonData(session, model);
 		return "builder/step2";
@@ -200,9 +156,6 @@ public class BuilderController {
 		if (isNotLoggedIn(session))
 			return "redirect:/loginform";
 
-		if (!isUser(session))
-			return "redirect:/builder/admin";
-
 		setCommonData(session, model);
 		return "builder/step3";
 	}
@@ -220,9 +173,6 @@ public class BuilderController {
 		if (isNotLoggedIn(session))
 			return "redirect:/loginform";
 
-		if (!isUser(session))
-			return "redirect:/builder/admin";
-
 		setCommonData(session, model);
 		return "builder/step4";
 	}
@@ -239,9 +189,6 @@ public class BuilderController {
 
 		if (isNotLoggedIn(session))
 			return "redirect:/loginform";
-
-		if (!isUser(session))
-			return "redirect:/builder/admin";
 
 		setCommonData(session, model);
 		return "builder/step5";
@@ -278,13 +225,5 @@ public class BuilderController {
 
 	private boolean isNotLoggedIn(HttpSession session) {
 		return session.getAttribute("username") == null;
-	}
-
-	private boolean isAdmin(HttpSession session) {
-		return "ADMIN".equals(session.getAttribute("role"));
-	}
-
-	private boolean isUser(HttpSession session) {
-		return "USER".equals(session.getAttribute("role"));
 	}
 }

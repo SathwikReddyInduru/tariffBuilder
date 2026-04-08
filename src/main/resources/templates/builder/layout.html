@@ -46,6 +46,8 @@
                 <span class="main-node-label">BUILDER</span>
             </a>
 
+            <div class="main-rail-divider"></div>
+
             <!-- Approver node — hidden until privilege allows -->
             <a href="/builder/admin"
                class="main-node"
@@ -64,23 +66,23 @@
         <nav class="step-rail" id="stepRail">
             <a href="/builder/step1" class="step-node" onclick="return checkStepAccess(1)"
                 th:classappend="${activeStep == 1} ? ' active'">
-                <b>STEP 1</b><span>PKG TYPE</span>
+                <b>1</b><span>PKG TYPE</span>
             </a>
             <a href="/builder/step2" class="step-node" onclick="return checkStepAccess(2)"
                 th:classappend="${activeStep == 2} ? ' active'">
-                <b>STEP 2</b><span>SERVICE</span>
+                <b>2</b><span>SERVICE</span>
             </a>
             <a href="/builder/step3" class="step-node" onclick="return checkStepAccess(3)"
                 th:classappend="${activeStep == 3} ? ' active'">
-                <b>STEP 3</b><span>DEFAULT</span>
+                <b>3</b><span>DATP</span>
             </a>
             <a href="/builder/step4" class="step-node" onclick="return checkStepAccess(4)"
                 th:classappend="${activeStep == 4} ? ' active'">
-                <b>STEP 4</b><span>ADDITIONAL</span>
+                <b>4</b><span>AATP</span>
             </a>
             <a href="/builder/step5" class="step-node" onclick="return checkStepAccess(5)"
                 th:classappend="${activeStep == 5} ? ' active'">
-                <b>STEP 5</b><span>PRICING</span>
+                <b>5</b><span>PRICING</span>
             </a>
         </nav>
 

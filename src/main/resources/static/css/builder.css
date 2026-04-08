@@ -33,107 +33,157 @@ body {
    MAIN RAIL  (leftmost — app modules)
 ═══════════════════════════════════════ */
 .main-rail {
-    width: 100px;
+    width: 88px;
     background: var(--main-rail-bg);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 24px;
-    gap: 8px;
+    padding: 28px 0;
+    gap: 4px;
     flex-shrink: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 10;
+    overflow: hidden;
+    /* kills the phantom scrollbar */
 }
 
 .main-node {
-    width: 56px;
-    height: 64px;
-    border-radius: 16px;
+    position: relative;
+    width: 100%;
+    height: 72px;
     background: transparent;
-    color: #475569;
+    color: #3d5068;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     text-decoration: none;
-    transition: background 0.2s, color 0.2s;
+    transition: color 0.2s;
     cursor: pointer;
-    border: 2px solid transparent;
-    position: relative;
+    border: none;
 }
 
-/* tooltip on hover */
+/* left accent bar — hidden by default */
+.main-node::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--primary);
+    border-radius: 0 3px 3px 0;
+    transition: height 0.2s ease;
+}
+
+/* tooltip */
 .main-node::after {
     content: attr(title);
     position: absolute;
-    left: calc(100% + 10px);
+    left: calc(100% + 12px);
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-50%) scale(0.95);
     background: #1e293b;
     color: #e2e8f0;
     font-size: 10px;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 6px;
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, transform 0.15s;
     z-index: 999;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .main-node:hover::after {
     opacity: 1;
+    transform: translateY(-50%) scale(1);
 }
 
 .main-node:hover {
-    background: #1e293b;
     color: #94a3b8;
 }
 
+.main-node:hover .main-node-icon {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* active state */
 .main-node.active {
-    background: var(--primary);
-    color: white;
-    border-color: #818cf8;
+    color: #a5b4fc;
+}
+
+.main-node.active::before {
+    height: 36px;
+    /* accent bar slides in */
+}
+
+.main-node.active .main-node-icon {
+    background: rgba(99, 102, 241, 0.18);
+    border-color: rgba(99, 102, 241, 0.35);
+    color: #a5b4fc;
 }
 
 .main-node.active .main-node-label {
-    color: white;
+    color: #a5b4fc;
 }
 
+/* icon pill */
 .main-node-icon {
     font-size: 20px;
+    width: 48px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s;
+    color: inherit;
 }
 
 .main-node-label {
-    font-size: 8px;
+    font-size: 7.5px;
     font-weight: 800;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
     color: inherit;
 }
 
-/* hidden main nodes (approver-only, builder-only) */
+/* hidden main nodes */
 .main-node.hidden-node {
     display: none;
+}
+
+/* thin separator between module nodes */
+.main-rail-divider {
+    width: 36px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 4px 0;
+    flex-shrink: 0;
 }
 
 /* ═══════════════════════════════════════
    STEP RAIL  (second rail — builder steps)
 ═══════════════════════════════════════ */
 .step-rail {
-    width: 100px;
+    width: 88px;
     background: var(--step-rail-bg);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 24px;
-    gap: 16px;
+    padding: 28px 0;
+    gap: 0;
     flex-shrink: 0;
     transition: width 0.25s ease, opacity 0.25s ease;
     overflow: hidden;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* collapsed — when approver module is active */
@@ -145,49 +195,88 @@ body {
 }
 
 .step-node {
-    width: 70px;
-    height: 70px;
-    border-radius: 18px;
-    background: #1e293b;
-    color: #94a3b8;
+    position: relative;
+    width: 100%;
+    height: 68px;
+    background: transparent;
+    color: #334155;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: 10px;
     font-weight: 500;
-    border: 2px solid rgba(255, 255, 255, 0.06);
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    transition: color 0.2s;
     text-decoration: none;
-    gap: 3px;
+    gap: 5px;
     white-space: nowrap;
+}
+
+/* left accent bar */
+.step-node::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--primary);
+    border-radius: 0 3px 3px 0;
+    transition: height 0.2s ease;
 }
 
 .step-node b {
     font-size: 9px;
     font-weight: 800;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: inherit;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .step-node span {
-    font-size: 8px;
-    color: #64748b;
+    font-size: 7.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: inherit;
+    opacity: 0.6;
 }
 
 .step-node:hover {
-    transform: translateY(-2px);
-    background: #273448;
-    color: #cbd5e1;
+    color: #94a3b8;
+}
+
+.step-node:hover b {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 .step-node.active {
-    background: var(--primary);
-    color: white;
-    border-color: #818cf8;
+    color: #a5b4fc;
+}
+
+.step-node.active::before {
+    height: 32px;
+}
+
+.step-node.active b {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #a5b4fc;
 }
 
 .step-node.active span {
-    color: #c7d2fe;
+    opacity: 1;
+    color: #a5b4fc;
 }
 
 /* ═══════════════════════════════════════
@@ -353,34 +442,6 @@ body {
 }
 
 /* ═══════════════════════════════════════
-   MODULE NAV (pkg builder / ereload)
-═══════════════════════════════════════ */
-/* .module-nav {
-    display: flex;
-    gap: 10px;
-    margin-left: 30px;
-}
-
-.mod-btn {
-    padding: 8px 20px;
-    border-radius: 50px;
-    font-size: 11px;
-    font-weight: 800;
-    cursor: pointer;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    border: 1px solid var(--border);
-    background: white;
-    transition: 0.3s;
-}
-
-.mod-btn.active {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-} */
-
-/* ═══════════════════════════════════════
    CONFIG NAME INPUT
 ═══════════════════════════════════════ */
 .config-name {
@@ -403,7 +464,6 @@ body {
     flex-direction: column;
     overflow-y: auto;
     height: calc(100vh - 142px);
-    /* 70 navbar + 72 header */
 }
 
 /* ═══════════════════════════════════════

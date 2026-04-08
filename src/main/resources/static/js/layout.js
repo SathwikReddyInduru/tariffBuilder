@@ -88,10 +88,12 @@ function setModuleUI(module) {
         // Show step rail + sidebar
         if (stepRail) stepRail.classList.remove('collapsed');
         if (sidebar) sidebar.classList.remove('collapsed');
+        if (footerActions) footerActions.style.display = 'flex';
     } else {
         // Approver — collapse step rail + sidebar (they're irrelevant)
         if (stepRail) stepRail.classList.add('collapsed');
         if (sidebar) sidebar.classList.add('collapsed');
+        if (footerActions) footerActions.style.display = 'none';
     }
 }
 
